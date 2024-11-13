@@ -218,30 +218,39 @@ class _TodayTaskState extends State<TodayTask> {
       ),
               SizedBox(height: 30),
                  Container(
-                  padding: EdgeInsets.only(left: 20),
+                  padding: EdgeInsets.only(left: 12, right: 12),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
                     child: Column(
                       children: allTask.isNotEmpty ?
                       List.generate(allTask.length, (index) {
                         dynamic task = allTask[index];
-                          return Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.white,
-                            ),
-                            child: Column(
-                              children: [
-                                Row(children: [
-                                  Text(task['taskType'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
-                                ],),
-                                SizedBox(height: 15,),
-                                Text(task['title'], style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                                SizedBox(height: 15,),
-                                Row(children: [],)
-                              ],
-                            ),
-                          );
+                         return taskCard(
+                             'assets/office.png',
+                             task['title'],
+                             task['taskType'],
+                             '10 am',
+                             'Inprogress');
+
+
+
+                        // Container(
+                          //   decoration: BoxDecoration(
+                          //     borderRadius: BorderRadius.circular(12),
+                          //     color: Colors.white,
+                          //   ),
+                          //   child: Column(
+                          //     children: [
+                          //       Row(children: [
+                          //         Text(task['taskType'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+                          //       ],),
+                          //       SizedBox(height: 15,),
+                          //       Text(task['title'], style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                          //       SizedBox(height: 15,),
+                          //       Row(children: [],)
+                          //     ],
+                          //   ),
+                          // );
                     })
                           :
                           [
@@ -253,6 +262,116 @@ class _TodayTaskState extends State<TodayTask> {
                 )
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+ taskCard(
+   String icon,
+    String taskName,
+   String taskType,
+    String taskTime,
+   String taskStatus,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Left Section
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  taskType,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  taskName,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      color: Color(0xFFB39DDB),
+                      size: 20,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      taskTime,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFFB39DDB),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            // Right Section
+            Column(
+              children: [
+                // Task Type Icon
+                Align(
+                  alignment: Alignment.topRight,
+                  child:
+                Container(
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF8BBD0),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Image.asset(
+                    width: 18,
+                    height: 18,
+                    icon,
+                    color: Color(0xFFEC407A),
+                  ),
+                ),
+                ),
+                SizedBox(height: 12),
+                // Task Status
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFEDE7F6),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    taskStatus,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFFB39DDB),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -336,3 +455,7 @@ class _TodayTaskState extends State<TodayTask> {
     }];
   }
 }
+
+
+
+
