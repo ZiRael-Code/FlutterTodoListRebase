@@ -91,8 +91,8 @@ class _BottomNavExampleState extends State<BottomNavExample> {
                   _selectedIndex == 4
                       ? 'assets/selected_bottomNav_icon/profile.svg'
                       : 'assets/unselected_bottomNav_icon/profile.svg',
-                  width: 32,
-                  height: 32,
+                  width: 39,
+                  height: 39,
                 ),
                 label: 'Profile',
               ),

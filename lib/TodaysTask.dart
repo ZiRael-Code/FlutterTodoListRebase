@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import for date formatting
+import 'package:intl/intl.dart';
+import 'package:todo_list_flutter/Dashboard.dart'; // Import for date formatting
 
 void main() {
   runApp(TodayTask());
@@ -229,8 +230,10 @@ class _TodayTaskState extends State<TodayTask> {
                              'assets/office.png',
                              task['title'],
                              task['taskType'],
-                             '10 am',
-                             'Inprogress');
+                             '10:00 AM',
+                             'Inprogress',
+                         Color(0xFFEC407A)
+                         );
 
 
 
@@ -273,7 +276,17 @@ class _TodayTaskState extends State<TodayTask> {
    String taskType,
     String taskTime,
    String taskStatus,
+     Color primaryColor
   ) {
+    Color? statusColor;
+    if (taskStatus.toLowerCase().characters.characterAt(0).toString() == 'c' ){
+      statusColor = Color(0xff663BE3);
+    }else if (taskStatus.toLowerCase().characters.characterAt(0).toString() == 'i' ){
+      statusColor = Color(0xffFF7D53);
+    }else if (taskStatus.toLowerCase().characters.characterAt(0).toString() == 't' ){
+      statusColor = Color(0xff38A4FC);
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8),
       child: Container(
@@ -303,7 +316,7 @@ class _TodayTaskState extends State<TodayTask> {
                     color: Colors.black54,
                   ),
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 7),
                 Text(
                   taskName,
                   style: TextStyle(
@@ -317,7 +330,7 @@ class _TodayTaskState extends State<TodayTask> {
                   children: [
                     Icon(
                       Icons.access_time,
-                      color: Color(0xFFB39DDB),
+                      color: Color(0xFFAB94FF),
                       size: 20,
                     ),
                     SizedBox(width: 4),
@@ -325,15 +338,18 @@ class _TodayTaskState extends State<TodayTask> {
                       taskTime,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFFB39DDB),
+                        color: Color(0xFFAB94FF),
                       ),
                     ),
                   ],
                 ),
               ],
             ),
+            Spacer(),
             // Right Section
             Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 // Task Type Icon
                 Align(
@@ -342,30 +358,29 @@ class _TodayTaskState extends State<TodayTask> {
                 Container(
                   padding: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Color(0xFFF8BBD0),
-                    borderRadius: BorderRadius.circular(14),
+                    color: lightenColor(primaryColor, 0.70),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Image.asset(
                     width: 18,
                     height: 18,
                     icon,
-                    color: Color(0xFFEC407A),
                   ),
                 ),
                 ),
-                SizedBox(height: 12),
+                SizedBox(height: 16),
                 // Task Status
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFFEDE7F6),
+                    color: lightenColor(statusColor!, 0.80),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
                     taskStatus,
                     style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFFB39DDB),
+                      color: statusColor,
                     ),
                   ),
                 ),

@@ -29,14 +29,69 @@ class _AppointmentPaymentScreen extends  State<Notifications> {
           'title':'Oga shey u don chop this morning nii',
           'time': '9:00 AM',
           'checked': false
-        },
-        {
-          'title':'ahhh omo send me a screenshot of your account i wan laught small',
-          'time': '9:00 AM',
-          'checked': false
         }
       ],
       'pending': false,
+    },
+    {
+      'from': 'Jehovah Witness',
+      'body': [
+        {
+          'title':'This is a reminder that you need to pay your rent',
+          'time': '11:00 AM',
+          'checked': false
+        },
+        {
+          'title':'This is a reminder that God is watching you always 👁️',
+          'time': '10:30 AM',
+          'checked': false
+        }
+      ]
+    },
+    {
+      'from': 'Tinubu Shettima',
+      'body': [
+        {
+          'title':'I hear say you still dey buy fuel for ₦200',
+          'time': '11:00 AM',
+          'checked': false
+        },
+        {
+          'title':'I hear say you still dey buy fuel for ₦200',
+          'time': '10:30 AM',
+          'checked': false
+        }
+      ]
+    },
+    {
+      'from': 'EFCC',
+      'body': [
+        {
+          'title':'This is a reminder that you need to pay your rent',
+          'time': '11:00 AM',
+          'checked': false
+        },
+        {
+          'title':'How far pablo abeg where our house dey i don forget',
+          'time': '10:30 AM',
+          'checked': false
+        }
+      ]
+    },
+    {
+      'from': 'Palmpay',
+      'body': [
+        {
+          'title':'Hello baby it me abike please what is you location',
+          'time': '11:00 AM',
+          'checked': false
+        },
+        {
+          'title':'Hello baby it me abike please what is you location',
+          'time': '10:30 AM',
+          'checked': false
+        }
+      ]
     }
   ];
 
@@ -57,7 +112,9 @@ home: Scaffold(
             ),
             child: Center(
               child: Text(
+                !isSelected.isEmpty ?
                 isSelected.length.toString()
+                    : ''
               ),
             )
           ),
@@ -139,35 +196,45 @@ Align(
       SizedBox(height: 20,),
 
      Container(
-       height: isSelected.isEmpty ? MediaQuery.of(context).size.height * 0.65 : double.infinity,
        child: Expanded(child:
        SingleChildScrollView(
          child: Column(
-           children: all_notification.map((notificationData) {
+           children:  all_notification.map((notificationData) {
              String from = notificationData['from'];
-             bool pending = notificationData['pending'];
+             bool pending = notificationData.containsKey('pending') ? notificationData['pending'] : false;
              List<dynamic> body = notificationData['body'];
 
-             // Return a list of notifications for each message in the body
-             return Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: body.map((messageData) {
-                 return notification(
-                   title: from,
-                   message: messageData['title'],
-                   time: messageData['time'],
-                   buttonText: 'View',
-                   isChecked: messageData['checked'],
-                 );
-               }).toList(),
-             );
-           }).toList(),
+             // Get the latest message (last item in the body list)
+             if (body.isNotEmpty) {
+               Map<dynamic, dynamic> latestMessage = body.last;
+
+               // Extract data from the latest message
+               String messageTitle = latestMessage['title'];
+               String messageTime = latestMessage['time'];
+               bool isChecked = latestMessage['checked'];
+
+               // Return a notification widget for the latest message
+               return notification(
+                 title: from,
+                 message: messageTitle,
+                 time: messageTime,
+                 buttonText: pending ? 'Pending' : 'View',
+                 isChecked: isChecked,
+               );
+             } else {
+               // If no messages in the body, return an empty SizedBox
+               return SizedBox.shrink();
+             }
+           }).toList()
+
          ),
        )
-
        ),
      ),
-      isSelected.isEmpty ?
+      !isSelected.isEmpty ?
+          Column(
+            children :[
+              SizedBox(height: 20,),
       ElevatedButton(
         onPressed: () {
           // show_ondelete_notification_popup()
@@ -186,10 +253,12 @@ Align(
           padding: const EdgeInsets.symmetric(
               vertical: 12.0, horizontal: 24.0),
           child: Text(
-            'Delete notification',
+            'Delete notifications',
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
         ),
+      )
+    ]
       )
           :
       Container(),
@@ -229,7 +298,7 @@ Align(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Small Dot
                   isChecked
@@ -273,14 +342,18 @@ Align(
                           ),
                         ),
                         SizedBox(height: 5),
+                        Container(
+                          padding: EdgeInsets.only(right: 10),
+                          child:
                         Text(
                           message,
                           style: TextStyle(
                             color: Color(0xff666666),
                             fontSize: 14,
                           ),
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                        ),
                         ),
                         SizedBox(height: 12),
                         Row(
@@ -297,9 +370,12 @@ Align(
                       ],
                     ),
                   ),
-                  // Button
+    // Button
+    Align(
+      alignment: Alignment.centerRight,
+      child:
                   SizedBox(
-                    height: 33,
+                    height: 29,
                     child: ElevatedButton(
                       onPressed: () {
                         setState(() {
@@ -320,28 +396,30 @@ Align(
                       ),
                     ),
                   ),
+                  ),
                 ],
               ),
-              SizedBox(height: 10),
-              SvgPicture.asset('assets/images/line.svg'),
+              SizedBox(height: 4),
+              Divider(color: Colors.black12,),
               SizedBox(height: 10),
             ],
           ),
           // Checkmark Icon (Visible only if selected) - Positioned at the top right
           if (!notSelected)
             Positioned(
-              bottom: 10,
+              top: 0,
               // Adjust the position to ensure it does not clash with the button
-              right: 10,
+              right: 0,
               // Add padding from the right to prevent overlap
               child: Container(
-                width: 18,
-                height: 18,
+                padding: EdgeInsets.all(2),
+                // width: 18,
+                // height: 18,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xff5F33E0),
+                  color: Colors.green,
                 ),
-                child: Icon(Icons.check, color: Colors.white, size: 14),
+                child: Icon(Icons.check, color: Colors.white, size: 12),
               ),
             ),
         ],
