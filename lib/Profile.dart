@@ -127,7 +127,6 @@ class _AppointmentPaymentScreen extends  State<Profile> {
                       'Personal Details',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     )
@@ -145,7 +144,7 @@ class _AppointmentPaymentScreen extends  State<Profile> {
                           children: [
                             details(
                                 icon: Icons.person,
-                                detailType: "Name",
+                                detailType: "username",
                                 detailInfo: "Sanni Muiz Dolapo",
                                 shouldLine: true
                             ),
@@ -175,7 +174,6 @@ class _AppointmentPaymentScreen extends  State<Profile> {
                       'Referrals',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     )
@@ -206,7 +204,6 @@ class _AppointmentPaymentScreen extends  State<Profile> {
                       'Help and support',
                       style: TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),

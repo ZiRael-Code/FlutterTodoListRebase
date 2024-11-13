@@ -16,6 +16,29 @@ class _AppointmentPaymentScreen extends  State<Notifications> {
   List<String> isSelected = [];
   bool isPendingSelected = false;
   bool isCheckedSelected = false;
+
+  List<Map<String, String>> contact = [
+    {
+      'name':'John Doe',
+      'phone':'1234567890',
+    }, {
+      'name':'John Doe',
+      'phone':'1234567890',
+    }, {
+      'name':'John Doe',
+      'phone':'1234567890',
+    }, {
+      'name':'John Doe',
+      'phone':'1234567890',
+    }, {
+      'name':'John Doe',
+      'phone':'1234567890',
+    },
+
+  ];
+
+
+
   List<Map<dynamic, dynamic>> all_notification = [
     {
       'from':'ZiReal System',
@@ -204,16 +227,13 @@ Align(
              bool pending = notificationData.containsKey('pending') ? notificationData['pending'] : false;
              List<dynamic> body = notificationData['body'];
 
-             // Get the latest message (last item in the body list)
              if (body.isNotEmpty) {
                Map<dynamic, dynamic> latestMessage = body.last;
 
-               // Extract data from the latest message
                String messageTitle = latestMessage['title'];
                String messageTime = latestMessage['time'];
                bool isChecked = latestMessage['checked'];
 
-               // Return a notification widget for the latest message
                return notification(
                  title: from,
                  message: messageTitle,
@@ -222,7 +242,6 @@ Align(
                  isChecked: isChecked,
                );
              } else {
-               // If no messages in the body, return an empty SizedBox
                return SizedBox.shrink();
              }
            }).toList()
