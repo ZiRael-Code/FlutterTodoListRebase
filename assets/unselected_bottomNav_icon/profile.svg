@@ -1,0 +1,20 @@
+<svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 64 64"
+        width="24"
+        height="24">
+
+    <!-- Background Person -->
+    <!-- Head of the background person -->
+    <circle cx="28" cy="23" r="6" fill="#C8BBE9"/>
+
+    <!-- Shoulders of the background person -->
+    <path d="M18,43c0-5,4-9,9-9s9,4,9,9" fill="#C8BBE9"/>
+
+    <!-- Foreground Person -->
+    <!-- Head of the foreground person -->
+    <circle cx="34" cy="24" r="7" fill="#A3A3D1"/>
+
+    <!-- Shoulders of the foreground person -->
+    <path d="M24,44c0-5.5,4.5-10,10-10s10,4.5,10,10" fill="#A3A3D1"/>
+</svg>

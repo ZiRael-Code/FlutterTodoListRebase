@@ -1,0 +1,27 @@
+<svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 64 64"
+        width="64"
+        height="64">
+    <!-- Background of the calendar -->
+    <rect x="5" y="10" width="54" height="50" rx="8" ry="8" fill="#EDE8FF" />
+
+    <!-- Top section for calendar header -->
+    <rect x="5" y="10" width="54" height="12" fill="#5F33E0" />
+
+    <!-- Binding rings on top -->
+    <circle cx="18" cy="8" r="2" fill="#5F33E0" />
+    <circle cx="32" cy="8" r="2" fill="#5F33E0" />
+    <circle cx="46" cy="8" r="2" fill="#5F33E0" />
+
+    <!-- Grid for calendar dates -->
+    <rect x="12" y="28" width="8" height="8" fill="#D1C4FF" />
+    <rect x="24" y="28" width="8" height="8" fill="#D1C4FF" />
+    <rect x="36" y="28" width="8" height="8" fill="#D1C4FF" />
+    <rect x="48" y="28" width="8" height="8" fill="#D1C4FF" />
+
+    <rect x="12" y="40" width="8" height="8" fill="#D1C4FF" />
+    <rect x="24" y="40" width="8" height="8" fill="#D1C4FF" />
+    <rect x="36" y="40" width="8" height="8" fill="#D1C4FF" />
+    <rect x="48" y="40" width="8" height="8" fill="#D1C4FF" />
+</svg>

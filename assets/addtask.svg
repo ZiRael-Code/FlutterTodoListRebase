@@ -1,0 +1,10 @@
+<svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background circle with new color -->
+    <rect width="52" height="52" rx="26" fill="#5F33E0"/>
+
+    <!-- Outer ring of the icon -->
+    <path d="M40 26C40 33.732 33.732 40 26 40C18.268 40 12 33.732 12 26C12 18.268 18.268 12 26 12C33.732 12 40 18.268 40 26ZM13.9789 26C13.9789 32.6391 19.3609 38.0211 26 38.0211C32.6391 38.0211 38.0211 32.6391 38.0211 26C38.0211 19.3609 32.6391 13.9789 26 13.9789C19.3609 13.9789 13.9789 19.3609 13.9789 26Z" fill="white"/>
+
+    <!-- Centered balanced white plus sign -->
+    <path d="M24.75 22.5H27.25V24.75H29.5V27.25H27.25V29.5H24.75V27.25H22.5V24.75H24.75V22.5Z" fill="white"/>
+</svg>
