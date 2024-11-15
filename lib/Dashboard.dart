@@ -517,6 +517,7 @@ hexToColor(String color){
   }
 }
 
+// work on it later let it return sting not svg
 Map<String, dynamic> iconAndColorDetermine(String projectType) {
   String proj = projectType.toLowerCase();
 

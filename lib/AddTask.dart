@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:todo_list_flutter/Dashboard.dart';
 import 'package:todo_list_flutter/Notifications.dart';
+
+//TODO Write a doc for this because the code is too much
 
 void main() => runApp(const MyApp());
 
@@ -57,7 +60,8 @@ class _AddTaskScreen extends State<AddTaskScreen> {
      _taskTypeController.text = selectedOption;
    }
 
-  Image icon = Image.asset('assets/office.png', width: 40, height: 40,);
+   String imagePath = 'assets/office.svg';
+ late SvgPicture icon = SvgPicture.asset(imagePath, width: 40, height: 40,);
   Color primaryColor = Color(0xfff277b7);
   late Color colorLightened = lightenColor(primaryColor,  0.70);
 
@@ -109,7 +113,6 @@ class _AddTaskScreen extends State<AddTaskScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Image Container
            Column(children: [
              Stack(
                children: [
@@ -178,8 +181,9 @@ class _AddTaskScreen extends State<AddTaskScreen> {
                   // Office Icon
                   Padding(
                     padding: const EdgeInsets.only(right: 10),
-                    child: Image.asset(
-                      'assets/office.png', // Add your image to assets folder
+                    // TODO change the svg to image start from the dashboard method
+                    child: SvgPicture.asset(
+                      imagePath,
                       width: 24,
                       height: 24,
                     ),
@@ -223,7 +227,6 @@ SizedBox(height: 10,)
         ),
 
 
-            // Task Name Input
              inputField(
               label: "Task Name",
               hintText: "Build portfolio website...",
@@ -234,7 +237,6 @@ SizedBox(height: 10,)
 
             ),
 
-            // Description Input
              inputField(
               label: "Description",
               hintText: "The website action would...",
@@ -243,7 +245,6 @@ SizedBox(height: 10,)
                  isEnabled: true
             ),
 
-            // Start and End Date Inputs
             Row(
               children:  [
                 Expanded(
@@ -276,8 +277,6 @@ SizedBox(height: 10,)
               ],
             ),
 
-
-            // Start and End Time Inputs
             Row(
               children:  [
                 Expanded(
@@ -310,8 +309,6 @@ SizedBox(height: 10,)
               ],
             ),
 
-
-            // Add Task Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -334,6 +331,7 @@ SizedBox(height: 10,)
       ),
     );
   }
+
    void _showTaskTypeDropdown() async {
      String? selected = await showDialog<String>(
        context: context,
@@ -356,6 +354,12 @@ SizedBox(height: 10,)
        setState(() {
          selectedOption = selected;
          _taskTypeController.text = selectedOption;
+         Map<String, dynamic> icon = iconAndColorDetermine(selectedOption);
+         imagePath = icon['icon'];
+         primaryColor = icon['color'];
+         colorLightened = lightenColor(primaryColor, 0.70);
+         //TODO check and change the svg to image
+         this.icon = SvgPicture.asset(imagePath, width: 40, height: 40);
        });
      }
    }
@@ -467,7 +471,6 @@ SizedBox(height: 10,)
     );
 
     if (pickedTime != null) {
-      // Format the time into a string
       final String formattedTime =
           "${pickedTime.hourOfPeriod.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')} ${pickedTime.period == DayPeriod.am ? "AM" : "PM"}";
 
@@ -488,7 +491,6 @@ SizedBox(height: 10,)
     );
 
     if (pickedDate != null) {
-      // Format the date as dd:mm:yy
       setState(() {
         startDate =
         "${pickedDate.day.toString().padLeft(2, '0')}:${pickedDate.month.toString().padLeft(2, '0')}:${pickedDate.year.toString().substring(2)}";
@@ -501,10 +503,9 @@ SizedBox(height: 10,)
 }
 
 Color colorFromHex(String hexColor) {
-  // Ensure the hexColor starts with 'FF' if it's not a full 8-char color.
-  hexColor = hexColor.replaceAll("#", ""); // Remove '#' if present.
+  hexColor = hexColor.replaceAll("#", "");
   if (hexColor.length == 6) {
-    hexColor = "FF$hexColor"; // Add opacity (alpha) value of 255.
+    hexColor = "FF$hexColor";
   }
   return Color(int.parse("0x$hexColor"));
 }
@@ -543,22 +544,22 @@ required IconData icon,
             controller: dateController,
             enabled: isEnabled,
             decoration: InputDecoration(
-              filled: true, // Enable background fill
-              fillColor: Colors.white, // Set the fill color to white
+              filled: true,
+              fillColor: Colors.white,
               hintText: hintText,
               prefixIcon: Icon(icon, size: 25, color: primaryColor),
               suffixIcon: Icon(Icons.edit, color: primaryColor),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.grey), // Set border color if needed
+                borderSide: BorderSide(color: Colors.grey),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.grey), // Color for the enabled border
+                borderSide: BorderSide(color: Colors.grey),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: primaryColor, width: 2), // Color for the focused border
+                borderSide: BorderSide(color: primaryColor, width: 2),
               ),
             ),
           ),
