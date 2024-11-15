@@ -149,13 +149,33 @@ class _AddTaskScreen extends State<AddTaskScreen> {
              Positioned(
                right: 20,
                bottom: 20,
-               child: IconButton(icon: Icon(Icons.edit,
+               child:
+                 IconButton(icon: Icon(Icons.edit,
                    color: Colors.white, size: 40),
                  onPressed: () {
+                   // isOptionAnExistingTaskType(selectedOption) ?
+                   // showDialog(
+                   //   context: context,
+                   //   builder: (BuildContext context) {
+                   //     return AlertDialog(
+                   //       title: Text("Error"),
+                   //       content: Text("Existing task type already selected."),
+                   //       actions: [
+                   //         TextButton(
+                   //           onPressed: () {
+                   //             Navigator.of(context).pop(); // Close the dialog
+                   //           },
+                   //           child: Text("OK"),
+                   //         ),
+                   //       ],
+                   //     );
+                   //   },
+                   // )
+                   //     :
                    _showColorPickerDialog();
                  },
                   ),
-             ),
+                  )
              ]
            )
 
@@ -499,6 +519,15 @@ SizedBox(height: 10,)
     }
   }
 
+  isOptionAnExistingTaskType(String selectedOption) {
+     for (int i = 0; i < taskType.length; i++) {
+       if (taskType[i] == selectedOption) {
+         return true;
+       }
+     }
+     return false;
+  }
+
 
 }
 
@@ -509,7 +538,6 @@ Color colorFromHex(String hexColor) {
   }
   return Color(int.parse("0x$hexColor"));
 }
-
 
 inputField  ({
  required String label,
