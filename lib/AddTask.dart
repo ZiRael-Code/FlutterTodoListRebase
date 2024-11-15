@@ -21,6 +21,12 @@ class AddTaskScreen extends StatefulWidget{
 
 class _AddTaskScreen extends State<AddTaskScreen> {
   final TextEditingController _taskTypeController = TextEditingController();
+  final TextEditingController _startDateInputController = TextEditingController();
+  final TextEditingController _endDateInputController = TextEditingController();
+
+   final TextEditingController _startTimeInputController = TextEditingController();
+  final TextEditingController _endTimeInputController = TextEditingController();
+
   bool isEditable = false;
   final List<Map<String, dynamic>> colors = [
     {"name": "Red", "color": Colors.red},
@@ -40,6 +46,8 @@ class _AddTaskScreen extends State<AddTaskScreen> {
     "Daily Studies",
     "Personal Project",
   ];
+  String startDate = "dd:mm:yy";
+  String selectedTime = "hh:mm";
 
    late String selectedOption = taskType[0];
 
@@ -51,7 +59,7 @@ class _AddTaskScreen extends State<AddTaskScreen> {
 
   Image icon = Image.asset('assets/office.png', width: 40, height: 40,);
   Color primaryColor = Color(0xfff277b7);
- late Color colorLightened = lightenColor(primaryColor,  0.70);
+  late Color colorLightened = lightenColor(primaryColor,  0.70);
 
    @override
   Widget build(BuildContext context) {
@@ -243,8 +251,12 @@ SizedBox(height: 10,)
                     label: "Start date",
                     hintText: "dd:mm:yy",
                     icon: Icons.calendar_today,
-                      primaryColor: primaryColor,
-                      isEnabled: false
+                    primaryColor: primaryColor,
+                    isEnabled: false,
+                    controller: _startDateInputController,
+                    action: (){
+                      showDatePickers(_startDateInputController);
+                    }
                   ),
                 ),
                 SizedBox(width: 10),
@@ -254,9 +266,11 @@ SizedBox(height: 10,)
                     hintText: "dd:mm:yy",
                     icon: Icons.calendar_today,
                       primaryColor: primaryColor,
-                      isEnabled: false
-
-
+                      isEnabled: false,
+                      controller: _endDateInputController,
+                      action: (){
+                        showDatePickers(_endDateInputController);
+                      }
                   ),
                 ),
               ],
@@ -272,8 +286,11 @@ SizedBox(height: 10,)
                     hintText: "hh:mm:ss",
                     icon: Icons.access_time,
                       primaryColor: primaryColor,
-                      isEnabled: false
-
+                      isEnabled: false,
+                    controller: _startTimeInputController,
+                    action: () {
+                      endTime(_startTimeInputController);
+                    }
                   ),
                 ),
                 SizedBox(width: 10),
@@ -283,7 +300,11 @@ SizedBox(height: 10,)
                     hintText: "hh:mm:ss",
                     icon: Icons.access_time,
                     primaryColor: primaryColor,
-                      isEnabled: false
+                      isEnabled: false,
+                      controller: _endTimeInputController,
+                      action: () {
+                        endTime(_endTimeInputController);
+                      }
                   ),
                 ),
               ],
@@ -386,6 +407,7 @@ SizedBox(height: 10,)
                         });
                         setState(() {
                          primaryColor = colorFromHex(selectedColorHex);
+                        colorLightened = lightenColor(primaryColor, 0.70);
                         });
                         Navigator.pop(context);
                       },
@@ -431,6 +453,51 @@ SizedBox(height: 10,)
       },
     );
   }
+
+  void endTime(_controller) async {
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedTime != null) {
+      // Format the time into a string
+      final String formattedTime =
+          "${pickedTime.hourOfPeriod.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')} ${pickedTime.period == DayPeriod.am ? "AM" : "PM"}";
+
+      setState(() {
+        selectedTime = formattedTime;
+        _controller.text = selectedTime;
+      });
+    }
+  }
+
+
+  void showDatePickers(controller) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      // Format the date as dd:mm:yy
+      setState(() {
+        startDate =
+        "${pickedDate.day.toString().padLeft(2, '0')}:${pickedDate.month.toString().padLeft(2, '0')}:${pickedDate.year.toString().substring(2)}";
+        controller.text = startDate;
+      });
+    }
+  }
+
+
 }
 
 Color colorFromHex(String hexColor) {
@@ -449,8 +516,20 @@ required String hintText,
 required IconData icon,
   required primaryColor,
   required bool isEnabled,
+  controller,
   action
 }) {
+  if (action != null)
+    return InkWell(
+      onTap: action,
+      child: field(label, hintText, icon, primaryColor, isEnabled, controller)
+    );
+  else {
+    return field(label, hintText, icon, primaryColor, isEnabled, controller);
+  }
+  }
+
+  field (String label, String hintText, IconData icon, primaryColor, bool isEnabled,  dateController){
     return Padding(
       padding: const EdgeInsets.only(),
       child: Column(
@@ -461,6 +540,7 @@ required IconData icon,
             style: const TextStyle(fontSize: 16,),
           ),
           TextField(
+            controller: dateController,
             enabled: isEnabled,
             decoration: InputDecoration(
               filled: true, // Enable background fill
