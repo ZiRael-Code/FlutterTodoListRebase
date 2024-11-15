@@ -7,7 +7,7 @@
     <rect x="5" y="10" width="54" height="50" rx="8" ry="8" fill="#EDE8FF" />
 
     <!-- Top section for calendar header -->
-    <rect x="5" y="10" width="54" height="12" fill="#5F33E0" />
+    <rect x="5" y="10" width="54" height="12" fill="#8C5AE8" />
 
     <!-- Binding rings on top -->
     <circle cx="18" cy="8" r="2" fill="#5F33E0" />

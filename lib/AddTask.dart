@@ -15,15 +15,46 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AddTaskScreen extends StatelessWidget {
-  const AddTaskScreen({super.key});
+class AddTaskScreen extends StatefulWidget{
+  _AddTaskScreen createState() => _AddTaskScreen();
+}
 
-  @override
+class _AddTaskScreen extends State<AddTaskScreen> {
+  final TextEditingController _taskTypeController = TextEditingController();
+  bool isEditable = false;
+  final List<Map<String, dynamic>> colors = [
+    {"name": "Red", "color": Colors.red},
+    {"name": "Blue", "color": Colors.blue},
+    {"name": "Green", "color": Colors.green},
+    {"name": "Yellow", "color": Colors.yellow},
+    {"name": "Orange", "color": Colors.orange},
+    {"name": "Purple", "color": Colors.purple},
+    {"name": "Pink", "color": Colors.pink},
+    {"name": "Brown", "color": Colors.brown},
+    {"name": "Cyan", "color": Colors.cyan},
+    {"name": "Teal", "color": Colors.teal},
+  ];
+  String selectedColorHex = '';
+   List<String> taskType = [
+    "Office Project",
+    "Daily Studies",
+    "Personal Project",
+  ];
+
+   late String selectedOption = taskType[0];
+
+   @override
+   void initState() {
+     super.initState();
+     _taskTypeController.text = selectedOption;
+   }
+
+  Image icon = Image.asset('assets/office.png', width: 40, height: 40,);
+  Color primaryColor = Color(0xfff277b7);
+ late Color colorLightened = lightenColor(primaryColor,  0.70);
+
+   @override
   Widget build(BuildContext context) {
-
-    Image icon = Image.asset('assets/office.png', width: 40, height: 40,);
-    Color primaryColor = Color(0xfff277b7);
-    Color colorLightened = lightenColor(primaryColor,  0.70);
 
 
     return Scaffold(
@@ -75,6 +106,9 @@ class AddTaskScreen extends StatelessWidget {
              Stack(
                children: [
              Container(
+               padding: EdgeInsets.all(15),
+               child: 
+             Container(
               height: 165,
               width: double.infinity,
               decoration: BoxDecoration(
@@ -100,16 +134,22 @@ class AddTaskScreen extends StatelessWidget {
                     ),
               ],)
             ),
+            ),
              Positioned(
-               right: 10,
-               bottom: 10,
-               child: Icon(Icons.edit, color: Colors.white, size: 45),
+               right: 20,
+               bottom: 20,
+               child: IconButton(icon: Icon(Icons.edit,
+                   color: Colors.white, size: 40),
+                 onPressed: () {
+                   _showColorPickerDialog();
+                 },
+                  ),
              ),
              ]
            )
 
            ],),
-            const SizedBox(height: 20),
+            const SizedBox(height: 5),
 
             // Task Type Input
             Column(
@@ -119,19 +159,58 @@ class AddTaskScreen extends StatelessWidget {
             Text('Task type', style: TextStyle(fontSize: 14)),
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(12),
+              padding: EdgeInsets.only(left: 12, top: 3, bottom: 3),
               decoration: BoxDecoration(
                 border: Border.all(width: 0.7, color: Colors.black),
                 borderRadius: BorderRadius.circular(12),
                 color: Colors.white,
               ),
-              child: Row(
+              child:  Row(
                 children: [
-
+                  // Office Icon
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Image.asset(
+                      'assets/office.png', // Add your image to assets folder
+                      width: 24,
+                      height: 24,
+                    ),
+                  ),
+                  // TextField
+                  Expanded(
+                    child: TextField(
+                      controller: _taskTypeController,
+                      readOnly: !isEditable,
+                      decoration: const InputDecoration(
+                        hintText: "Build a website...",
+                        border: InputBorder.none,
+                      ),
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                  // Dropdown Icon
+                  IconButton(
+                    icon: const Icon(Icons.arrow_drop_down),
+                    onPressed: () {
+                      _showTaskTypeDropdown();
+                    },
+                  ),
+                  // Edit Icon
+                  IconButton(
+                    icon: Icon(
+                      isEditable ? Icons.check : Icons.edit,
+                      color: primaryColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isEditable = !isEditable;
+                      });
+                    },
+                  ),
                 ],
               ),
             ),
-                SizedBox(height: 10,)
+SizedBox(height: 10,)
             ]
         ),
 
@@ -183,7 +262,6 @@ class AddTaskScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 10),
 
             // Start and End Time Inputs
             Row(
@@ -211,7 +289,6 @@ class AddTaskScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 20),
 
             // Add Task Button
             SizedBox(
@@ -236,6 +313,133 @@ class AddTaskScreen extends StatelessWidget {
       ),
     );
   }
+   void _showTaskTypeDropdown() async {
+     String? selected = await showDialog<String>(
+       context: context,
+       builder: (BuildContext context) {
+         return SimpleDialog(
+           title: const Text("Select Task Type"),
+           children: taskType.map((String option) {
+             return SimpleDialogOption(
+               onPressed: () {
+                 Navigator.pop(context, option);
+               },
+               child: Text(option),
+             );
+           }).toList(),
+         );
+       },
+     );
+
+     if (selected != null && selected != selectedOption) {
+       setState(() {
+         selectedOption = selected;
+         _taskTypeController.text = selectedOption;
+       });
+     }
+   }
+
+  void _showColorPickerDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          height: 345,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 10,
+                offset: Offset(0, -5),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  "Choose a Color",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: colors.length,
+                  itemBuilder: (context, index) {
+                    final colorItem = colors[index];
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedColorHex = colorItem['color'].value
+                              .toRadixString(16)
+                              .padLeft(8, '0')
+                              .substring(2)
+                              .toUpperCase();
+                        });
+                        setState(() {
+                         primaryColor = colorFromHex(selectedColorHex);
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        height: 60,
+                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: colorItem['color'],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                colorItem['name'],
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+Color colorFromHex(String hexColor) {
+  // Ensure the hexColor starts with 'FF' if it's not a full 8-char color.
+  hexColor = hexColor.replaceAll("#", ""); // Remove '#' if present.
+  if (hexColor.length == 6) {
+    hexColor = "FF$hexColor"; // Add opacity (alpha) value of 255.
+  }
+  return Color(int.parse("0x$hexColor"));
 }
 
 
@@ -279,7 +483,7 @@ required IconData icon,
             ),
           ),
 
-          SizedBox(height: 15,)
+          SizedBox(height: 10,)
         ],
       ),
     );
