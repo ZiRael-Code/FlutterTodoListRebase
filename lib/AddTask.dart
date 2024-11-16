@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
+
+import  'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:todo_list_flutter/Dashboard.dart';
 import 'package:todo_list_flutter/Notifications.dart';
 
@@ -29,6 +32,8 @@ class _AddTaskScreen extends State<AddTaskScreen> {
 
    final TextEditingController _startTimeInputController = TextEditingController();
   final TextEditingController _endTimeInputController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+  File? _selectedImage;
 
   bool isEditable = false;
   final List<Map<String, dynamic>> colors = [
@@ -61,7 +66,7 @@ class _AddTaskScreen extends State<AddTaskScreen> {
    }
 
    String imagePath = 'assets/office.svg';
- late SvgPicture icon = SvgPicture.asset(imagePath, width: 40, height: 40,);
+ late dynamic icon = SvgPicture.asset(imagePath, width: 40, height: 40,);
   Color primaryColor = Color(0xfff277b7);
   late Color colorLightened = lightenColor(primaryColor,  0.70);
 
@@ -130,6 +135,7 @@ class _AddTaskScreen extends State<AddTaskScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+
                     Container(
                       height: 60,
                       width: 60,
@@ -140,8 +146,38 @@ class _AddTaskScreen extends State<AddTaskScreen> {
                           color: colorLightened
                       ),
                       child: Center(
-                        child: icon,
+                        child: InkWell(
+                          onTap: () {
+                            if (isOptionAnExistingTaskType(_taskTypeController.text)){
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Error"),
+                                    content: Text("Existing task type already selected."),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(); //-//
+                                        },
+                                        child: Text("OK"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }else{
+                              _pickImage();
+                              if (_selectedImage != null){
+                              icon =  Image.file(_selectedImage!,
+                                  width: 40, height: 40,
+                                );
+                              }
+                            }
+                          },
+                          child: icon,
                       ),
+                    ),
                     ),
               ],)
             ),
@@ -153,27 +189,30 @@ class _AddTaskScreen extends State<AddTaskScreen> {
                  IconButton(icon: Icon(Icons.edit,
                    color: Colors.white, size: 40),
                  onPressed: () {
-                   // isOptionAnExistingTaskType(selectedOption) ?
-                   // showDialog(
-                   //   context: context,
-                   //   builder: (BuildContext context) {
-                   //     return AlertDialog(
-                   //       title: Text("Error"),
-                   //       content: Text("Existing task type already selected."),
-                   //       actions: [
-                   //         TextButton(
-                   //           onPressed: () {
-                   //             Navigator.of(context).pop(); // Close the dialog
-                   //           },
-                   //           child: Text("OK"),
-                   //         ),
-                   //       ],
-                   //     );
-                   //   },
-                   // )
-                   //     :
-                   _showColorPickerDialog();
-                 },
+                   if (_taskTypeController.text.isNotEmpty && _taskTypeController.text.length != 0){
+                     if (isOptionAnExistingTaskType(_taskTypeController.text)){
+                       showDialog(
+                             context: context,
+                             builder: (BuildContext context) {
+                               return AlertDialog(
+                                 title: Text("Error"),
+                                 content: Text("Existing task type already selected."),
+                                 actions: [
+                                   TextButton(
+                                     onPressed: () {
+                                       Navigator.of(context).pop(); // Close the dialog
+                                     },
+                                     child: Text("OK"),
+                                   ),
+                                 ],
+                               );
+                             },
+                           );
+                     }else{
+                       _showColorPickerDialog();
+                     }
+                   }
+                   },
                   ),
                   )
              ]
@@ -218,6 +257,9 @@ class _AddTaskScreen extends State<AddTaskScreen> {
                         border: InputBorder.none,
                       ),
                       style: const TextStyle(color: Colors.grey),
+                      onChanged: (value) {
+                        _taskTypeController.text = value;
+                      },
                     ),
                   ),
                   // Dropdown Icon
@@ -329,26 +371,53 @@ SizedBox(height: 10,)
               ],
             ),
 
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff5F33E1),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  "Add Task",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
-              ),
-            ),
+            // Spacer(),
+
+            // BottomNavigationBar(
+            //   child:
+            // SizedBox(
+            //   width: double.infinity,
+            //   child: ElevatedButton(
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: Color(0xff5F33E1),
+            //       padding: const EdgeInsets.symmetric(vertical: 15),
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(10),
+            //       ),
+            //     ),
+            //     onPressed: () {},
+            //     child: const Text(
+            //       "Add Task",
+            //       style: TextStyle(fontSize: 18, color: Colors.white),
+            //     ),
+            //   ),
+            // ),
+            // )
           ],
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.transparent,
+        child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff5F33E1),
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () {
+                // Add your task functionality here
+              },
+              child: const Text(
+                "Add Task",
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+          ),
+        ),
     );
   }
 
@@ -477,6 +546,18 @@ SizedBox(height: 10,)
       },
     );
   }
+
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+
 
   void endTime(_controller) async {
     TimeOfDay? pickedTime = await showTimePicker(
