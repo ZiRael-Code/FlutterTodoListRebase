@@ -502,7 +502,7 @@ SvgPicture byteToSvg(String icon) {
   return SvgPicture.asset("");
 }
 
-hexToColor(String color){
+
   Color hexToColor(String hexColor) {
     if (hexColor.startsWith("#")) {
       hexColor = hexColor.replaceAll('#', '');
@@ -515,7 +515,6 @@ hexToColor(String color){
 
     return Color(hexInt);
   }
-}
 
 // work on it later let it return sting not svg
 Map<String, dynamic> iconAndColorDetermine(String projectType) {

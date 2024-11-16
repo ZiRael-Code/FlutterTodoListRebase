@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:todo_list_flutter/Dashboard.dart'; // Import for date formatting
+import 'package:todo_list_flutter/Dashboard.dart';
+
+import 'ViewTask.dart'; // Import for date formatting
 
 void main() {
   runApp(TodayTask());
@@ -21,10 +23,19 @@ class _TodayTaskState extends State<TodayTask> {
   List<String> taskStatusTab = ["All", "To do", "In Progress", "Completed"];
   List<Map<dynamic, dynamic>> allTask = [
     {
-      'taskType': 'All Tasks',
-      'title': 'To Do',
-      'in_progress': 'In Progress',
-      'completed': 'Completed',
+      'taskType':{
+        'icon': 'assets/office.png',
+        'color': '2196F3',
+        'typeName' : 'Personal Project'
+      },
+      'title': 'Building App',
+      'description': 'Building todo list app',
+      'startDate': '12-11-2024',
+      'endDate': '22-11-2024',
+      'startTime': '12:24 AM',
+      'endTime': '6:34 PM',
+      'taskStatus': 'Completed',
+
     }
 
   ];
@@ -226,34 +237,44 @@ class _TodayTaskState extends State<TodayTask> {
                       children: allTask.isNotEmpty ?
                       List.generate(allTask.length, (index) {
                         dynamic task = allTask[index];
-                         return taskCard(
-                             'assets/office.png',
-                             task['title'],
-                             task['taskType'],
-                             '10:00 AM',
-                             'Inprogress',
-                         Color(0xFFEC407A)
+                        dynamic taskType = task['taskType'];
+                        dynamic icon =  taskType['icon'];
+                        dynamic typeName =  taskType['typeName'];
+                        dynamic color =  taskType['color'];
+
+                        if (icon == null && color == null) {
+                          setState(() {
+                            icon = iconAndColorDetermine(typeName)['icon'];
+                            color = colorToHex(iconAndColorDetermine(typeName)['color']);
+                          });
+
+                        }
+                         return GestureDetector(
+                             onTap: (){
+                               Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
+                                   ViewTaskScreen(
+                                       primaryColor:  hexToColor(color),
+                                       icon: icon,
+                                       taskStatus: task['taskStatus'],
+                                       taskType: typeName,
+                                       taskName: task['title'],
+                                       description: task['description'],
+                                       startDate: task['startDate'],
+                                       endDate: task['endDate'],
+                                       startTime: task['startTime'],
+                                       endTime: task['endTime'])
+                               ));
+                             },
+                            child: taskCard(
+                           icon,
+                           task['title'],
+                           typeName,
+                           task['startTime'],
+                           task['taskStatus'],
+                           hexToColor(color),
+                         )
                          );
 
-
-
-                        // Container(
-                          //   decoration: BoxDecoration(
-                          //     borderRadius: BorderRadius.circular(12),
-                          //     color: Colors.white,
-                          //   ),
-                          //   child: Column(
-                          //     children: [
-                          //       Row(children: [
-                          //         Text(task['taskType'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
-                          //       ],),
-                          //       SizedBox(height: 15,),
-                          //       Text(task['title'], style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-                          //       SizedBox(height: 15,),
-                          //       Row(children: [],)
-                          //     ],
-                          //   ),
-                          // );
                     })
                           :
                           [
@@ -268,6 +289,9 @@ class _TodayTaskState extends State<TodayTask> {
         ),
       ),
     );
+  }
+  String colorToHex(Color color) {
+    return color.value.toRadixString(16).substring(2).toUpperCase();
   }
 
  taskCard(

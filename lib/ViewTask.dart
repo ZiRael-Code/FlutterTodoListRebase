@@ -35,10 +35,10 @@ class ViewTaskScreen extends StatefulWidget{
     required this.endTime});
 
   @override
-  _AddTaskScreen createState() => _AddTaskScreen();
+  _ViewTaskScreen createState() => _ViewTaskScreen();
 }
 
-class _AddTaskScreen extends State<ViewTaskScreen> {
+class _ViewTaskScreen extends State<ViewTaskScreen> {
   final TextEditingController _taskTypeController = TextEditingController();
 
 
@@ -122,7 +122,7 @@ class _AddTaskScreen extends State<ViewTaskScreen> {
                       ),
                       child: Center(
                         child: InkWell(
-                          child: realIcon,
+                          child: Image.asset(realIcon),
                       ),
                     ),
                     ),
@@ -153,12 +153,10 @@ class _AddTaskScreen extends State<ViewTaskScreen> {
                         // Office Icon
                         Padding(
                           padding: const EdgeInsets.only(right: 10),
-                          child: realIcon
-                          // SvgPicture.asset(
-                          //   imagePath,
-                          //   width: 24,
-                          //   height: 24,
-                          // ),
+                          child: Image.asset( realIcon,
+                            width: 24,
+                            height: 24,
+                          ),
                         ),
                         // TextField
                         Expanded(
@@ -257,12 +255,12 @@ class _AddTaskScreen extends State<ViewTaskScreen> {
                         // Office Icon
                         Padding(
                             padding: const EdgeInsets.only(right: 10),
-                            child: realIcon
-                          // SvgPicture.asset(
-                          //   imagePath,
-                          //   width: 24,
-                          //   height: 24,
-                          // ),
+                            child:
+                          Image.asset(
+                            realIcon,
+                            width: 24,
+                            height: 24,
+                          ),
                         ),
                         // TextField
                         Expanded(

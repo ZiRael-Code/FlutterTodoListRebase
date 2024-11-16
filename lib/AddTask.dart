@@ -498,6 +498,7 @@ SizedBox(height: 10,)
                               .substring(2)
                               .toUpperCase();
                         });
+                        print("$selectedColorHex+_+_+_+_+_+_+_+_+");
                         setState(() {
                          primaryColor = colorFromHex(selectedColorHex);
                         colorLightened = lightenColor(primaryColor, 0.70);
