@@ -9,6 +9,7 @@ void main() {
   runApp(TodayTask());
 }
 
+// TODO ummm now do the update task and the chat smt good job tho 
 class TodayTask extends StatefulWidget {
   @override
   _TodayTaskState createState() => _TodayTaskState();
@@ -24,8 +25,8 @@ class _TodayTaskState extends State<TodayTask> {
   List<Map<dynamic, dynamic>> allTask = [
     {
       'taskType':{
-        'icon': 'assets/office.png',
-        'color': '2196F3',
+        'icon': '',
+        'color': '',
         'typeName' : 'Personal Project'
       },
       'title': 'Building App',
@@ -238,11 +239,11 @@ class _TodayTaskState extends State<TodayTask> {
                       List.generate(allTask.length, (index) {
                         dynamic task = allTask[index];
                         dynamic taskType = task['taskType'];
-                        dynamic icon =  taskType['icon'];
-                        dynamic typeName =  taskType['typeName'];
-                        dynamic color =  taskType['color'];
+                        String icon =  taskType['icon'];
+                        String typeName =  taskType['typeName'];
+                        String color =  taskType['color'];
 
-                        if (icon == null && color == null) {
+                        if (icon.isEmpty && color.isEmpty) {
                           setState(() {
                             icon = iconAndColorDetermine(typeName)['icon'];
                             color = colorToHex(iconAndColorDetermine(typeName)['color']);
@@ -253,8 +254,8 @@ class _TodayTaskState extends State<TodayTask> {
                              onTap: (){
                                Navigator.of(context).push(MaterialPageRoute(builder: (context) =>
                                    ViewTaskScreen(
-                                       primaryColor:  hexToColor(color),
-                                       icon: icon,
+                                       primaryColor:  taskType['color'],
+                                       icon: taskType['icon'],
                                        taskStatus: task['taskStatus'],
                                        taskType: typeName,
                                        taskName: task['title'],

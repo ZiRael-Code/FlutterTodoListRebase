@@ -6,11 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:todo_list_flutter/Dashboard.dart';
 import 'package:todo_list_flutter/Notifications.dart';
 
-import 'UpdateTask.dart';
 
 
-
-class ViewTaskScreen extends StatefulWidget{
+class UpdateTaskScreen extends StatefulWidget{
   final dynamic icon;
   final dynamic primaryColor;
   final String taskType;
@@ -23,7 +21,7 @@ class ViewTaskScreen extends StatefulWidget{
   final String endTime;
 
 
-  const ViewTaskScreen({
+  const UpdateTaskScreen({
     super.key,
      required this.primaryColor,
     required this.icon,
@@ -37,32 +35,33 @@ class ViewTaskScreen extends StatefulWidget{
     required this.endTime});
 
   @override
-  _ViewTaskScreen createState() => _ViewTaskScreen();
+  _UpdateTaskScreen createState() => _UpdateTaskScreen();
 }
 
-class _ViewTaskScreen extends State<ViewTaskScreen> {
+class _UpdateTaskScreen extends State<UpdateTaskScreen> {
   final TextEditingController _taskTypeController = TextEditingController();
 
 
 
- late dynamic realIcon;
- Color? primaryColor;
+
+  late dynamic realIcon;
+  Color? primaryColor;
   late Color colorLightened;
 
 
-   @override
+  @override
   Widget build(BuildContext context) {
-     if (widget.primaryColor.isEmpty && widget.icon.isEmpty){
+    if (widget.primaryColor.isEmpty && widget.icon.isEmpty){
       dynamic colorIcon = iconAndColorDetermine(widget.taskType);
       realIcon = colorIcon['icon'];
       primaryColor = colorIcon['color'];
       colorLightened = lightenColor(primaryColor!,  0.70);
-     }
+    }
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         title: const Text(
-          'View Task',
+          'Update Task',
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -246,49 +245,7 @@ class _ViewTaskScreen extends State<ViewTaskScreen> {
               ],
             ),
 
-            Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Task status', style: TextStyle(fontSize: 14)),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.only(left: 12, top: 3, bottom: 3),
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 0.7, color: Colors.black),
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.white,
-                    ),
-                    child:  Row(
-                      children: [
-                        // Office Icon
-                        Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child:
-                          Image.asset(
-                            realIcon,
-                            width: 24,
-                            height: 24,
-                          ),
-                        ),
-                        // TextField
-                        Expanded(
-                          child: TextField(
-                            controller: _taskTypeController,
-                            readOnly: true,
-                            decoration: InputDecoration(
-                              hintText: widget.taskStatus,
-                              border: InputBorder.none,
-                            ),
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10,)
-                ]
-            ),
+
 
           ],
         ),
@@ -306,23 +263,10 @@ class _ViewTaskScreen extends State<ViewTaskScreen> {
                 ),
               ),
               onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) =>
-                        UpdateTaskScreen(
-                            primaryColor: widget.primaryColor,
-                            icon: widget.icon,
-                            taskStatus: widget.taskStatus,
-                            taskType: widget.taskType,
-                            taskName: widget.taskName,
-                            description: widget.description,
-                            startDate: widget.startDate,
-                            endDate: widget.endDate,
-                            startTime: widget.startTime,
-                            endTime: widget.endTime)
-                    ));
+                // Add your task functionality here
               },
               child: const Text(
-                "Update Task",
+                "Done",
                 style: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
@@ -370,7 +314,7 @@ required IconData icon,
           ),
           TextField(
             controller: dateController,
-            readOnly: true,
+            // readOnly: true,
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,

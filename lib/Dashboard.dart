@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:todo_list_flutter/TaskProjects.dart';
+
+import 'ViewTask.dart';
 
 void main() {
   runApp(Dashboard());
@@ -20,6 +23,40 @@ class  Dashboard extends StatefulWidget{
 
 class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
   double progress = 0.0;
+List<Map<dynamic, dynamic>> inProgressTask = [
+  {
+  'taskType':{
+  'icon': '',
+  'color': '',
+  'typeName' : 'Office Project'
+  },
+  'title': 'Grocery shopping app design',
+  'description': 'Doing app design',
+  'startDate': '12-11-2024',
+  'endDate': '22-11-2024',
+  'startTime': '12:24 AM',
+  'endTime': '6:34 PM',
+  'taskStatus': 'Completed',
+    'progress': 20.0,
+  },
+
+  {
+  'taskType':{
+  'icon': '',
+  'color': '',
+  'typeName' : 'Personal Project'
+  },
+  'title': 'Uber Eats redesign app challenge',
+  'description': 'Doing app design',
+  'startDate': '12-11-2024',
+  'endDate': '22-11-2024',
+  'startTime': '12:24 AM',
+  'endTime': '6:34 PM',
+  'taskStatus': 'Completed',
+    'progress': 25.0,
+  }
+
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -213,21 +250,52 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            inProgress(
-                icon: '',
-                color: '',
-                projectType: "Office Project",
-                taskName: "Grocery shopping app design",
-                progress: 10,
-                context: context),
 
-            inProgress(
-                icon: '',
-                color: '',
-                projectType: "Personal Project",
-                taskName: "Uber Eats redesign app challenge",
-                progress: 20,
-                context: context),
+          Row(
+          children: List.generate(inProgressTask.length, (index) {
+            final task = inProgressTask[index]; // Current task
+            dynamic taskType = task['taskType'];
+            return GestureDetector(
+              onTap: () {
+                ViewTaskScreen(
+                    primaryColor:  taskType['color'],
+                    icon: taskType['icon'],
+                    taskStatus: task['taskStatus'],
+                    taskType: taskType['typeName'],
+                    taskName: task['title'],
+                    description: task['description'],
+                    startDate: task['startDate'],
+                    endDate: task['endDate'],
+                    startTime: task['startTime'],
+                    endTime: task['endTime']);
+              },
+                child: inProgress(
+              icon: task['taskType']['icon'],
+              color: task['taskType']['color'],
+              projectType: task['taskType']['typeName'],
+              taskName: task['title'],
+              progress: task['progress'],
+              context: context,
+            )
+            );
+          }),
+            ),
+
+            // inProgress(
+            //     icon: '',
+            //     color: '',
+            //     projectType: "Office Project",
+            //     taskName: "Grocery shopping app design",
+            //     progress: 10,
+            //     context: context),
+            //
+            // inProgress(
+            //     icon: '',
+            //     color: '',
+            //     projectType: "Personal Project",
+            //     taskName: "Uber Eats redesign app challenge",
+            //     progress: 20,
+            //     context: context),
           ],
         ),
       )
@@ -328,21 +396,25 @@ taskGroup({
   String proj = groupName.toLowerCase();
   Color progressBackgroundColor = Color(0xffFFE4F2);
   Color progressColor = Color(0xffF478B8);
-  SvgPicture iconSvg = SvgPicture.asset('assets/office.svg');;
+  Image iconSvg = Image.asset('assets/office.svg');;
 
   if (icon.isEmpty && color.isEmpty){
     progressBackgroundColor = lightenColor(iconAndColorDetermine(proj)['color'],  0.70);
-    iconSvg = SvgPicture.asset(iconAndColorDetermine(proj)['icon']);
+    iconSvg = Image.asset(iconAndColorDetermine(proj)['icon']);
     progressColor = (iconAndColorDetermine(proj)['color']);
   } else{
     progressBackgroundColor = hexToColor(color);
     progressColor = hexToColor(color);
-    iconSvg = byteToSvg(icon);
+    // iconSvg = byteToSvg(icon);
   }
   double mediaQw = MediaQuery.of(context).size.width;
   double mediaQh = MediaQuery.of(context).size.height;
 
-  return Column(children: [
+  return GestureDetector(
+    onTap: () {
+      Navigator.of(context).push(MaterialPageRoute(builder: (builder)=> ProjectTask(taskType: 'groupName',)));
+    },
+      child: Column(children: [
     Container(
     padding: EdgeInsets.only(top: 14, bottom: 14, left: 17, right: 17),
     width: double.infinity,
@@ -405,7 +477,7 @@ taskGroup({
       ],
   )
   ),
-  SizedBox(height: 10,)],);
+  SizedBox(height: 10,)],));
 }
 
 inProgress({
@@ -420,17 +492,17 @@ inProgress({
 
 
 Color iconBackgroundColor = Color(0xffFFE4F2);
-SvgPicture iconSvg = SvgPicture.asset('assets/office.svg', color: Color(0xffF478B8),);;
+  Image iconSvg = Image.asset('assets/office.svg', color: Color(0xffF478B8),);;
 
 
 if (icon.isEmpty && color.isEmpty){
 iconBackgroundColor = lightenColor(iconAndColorDetermine(proj)['color'],  0.70);
-iconSvg = SvgPicture.asset(iconAndColorDetermine(proj)['icon']);
+iconSvg = Image.asset(iconAndColorDetermine(proj)['icon']);
 
 } else{
   print("+++++++++++++++\nthe if statement is at else block");
   iconBackgroundColor = hexToColor(color);
-  iconSvg = byteToSvg(icon);
+  // iconSvg = byteToSvg(icon);
 }
   int colorRandomNumber = Random.secure().nextInt(5);
   List<Color> inProgProgressColor  = [Color(0xff0087FF),
@@ -457,6 +529,7 @@ iconSvg = SvgPicture.asset(iconAndColorDetermine(proj)['icon']);
         color: inProgBackgroundColor
       ),
   child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
   children: [
     Row(children: [
       Text(projectType, style: TextStyle(color: Colors.grey, fontSize:  14),),
@@ -521,13 +594,13 @@ Map<String, dynamic> iconAndColorDetermine(String projectType) {
   String proj = projectType.toLowerCase();
 
   if (proj.contains('office')) {
-    return {'icon': 'assets/office.svg', 'color': Color(0xffF478B8)};
+    return {'icon': 'assets/office.png', 'color': Color(0xffF478B8)};
   } else if (proj.contains('personal')) {
-    return {'icon': 'assets/person.svg', 'color': Color(0xff9260F4)};
+    return {'icon': 'assets/person.png', 'color': Color(0xff9260F4)};
   } else if  (proj.contains('study')) {
     return {'icon': 'assets/study.svg', 'color': Color(0xffFF9142)};
   }else{
-    return {'icon': 'assets/office.svg', 'color': Color(0xffF478B8)};
+    return {'icon': 'assets/office.png', 'color': Color(0xffF478B8)};
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:todo_list_flutter/Chat.dart';
 
 void main(){
   runApp(Notifications());
@@ -17,28 +18,6 @@ class _AppointmentPaymentScreen extends  State<Notifications> {
   bool isPendingSelected = false;
   bool isCheckedSelected = false;
 
-  List<Map<String, String>> contact = [
-    {
-      'name':'John Doe',
-      'phone':'1234567890',
-    }, {
-      'name':'John Doe',
-      'phone':'1234567890',
-    }, {
-      'name':'John Doe',
-      'phone':'1234567890',
-    }, {
-      'name':'John Doe',
-      'phone':'1234567890',
-    }, {
-      'name':'John Doe',
-      'phone':'1234567890',
-    },
-
-  ];
-
-
-
   List<Map<dynamic, dynamic>> all_notification = [
     {
       'from':'ZiReal System',
@@ -46,11 +25,13 @@ class _AppointmentPaymentScreen extends  State<Notifications> {
         {
           'title':'hello this is a gentle reminder that your father neva pay load',
           'time': '10:00 AM',
+          'date': 'Wed 10:00 AM',
           'checked': true
         },
         {
           'title':'Oga shey u don chop this morning nii',
           'time': '9:00 AM',
+          'date': 'Mon 9:00 AM',
           'checked': false
         }
       ],
@@ -62,11 +43,13 @@ class _AppointmentPaymentScreen extends  State<Notifications> {
         {
           'title':'This is a reminder that you need to pay your rent',
           'time': '11:00 AM',
+          'date': 'Wed 10:00 AM',
           'checked': false
         },
         {
           'title':'This is a reminder that God is watching you always 👁️',
           'time': '10:30 AM',
+          'date': 'Wed 10:00 AM',
           'checked': false
         }
       ]
@@ -77,11 +60,13 @@ class _AppointmentPaymentScreen extends  State<Notifications> {
         {
           'title':'I hear say you still dey buy fuel for ₦200',
           'time': '11:00 AM',
+          'date': 'Wed 10:00 AM',
           'checked': false
         },
         {
           'title':'I hear say you still dey buy fuel for ₦200',
           'time': '10:30 AM',
+          'date': 'Wed 10:00 AM',
           'checked': false
         }
       ]
@@ -92,11 +77,13 @@ class _AppointmentPaymentScreen extends  State<Notifications> {
         {
           'title':'This is a reminder that you need to pay your rent',
           'time': '11:00 AM',
+          'date': 'Wed 10:00 AM',
           'checked': false
         },
         {
           'title':'How far pablo abeg where our house dey i don forget',
           'time': '10:30 AM',
+          'date': 'Wed 10:00 AM',
           'checked': false
         }
       ]
@@ -107,11 +94,13 @@ class _AppointmentPaymentScreen extends  State<Notifications> {
         {
           'title':'Hello baby it me abike please what is you location',
           'time': '11:00 AM',
+          'date': 'Wed 10:00 AM',
           'checked': false
         },
         {
           'title':'Hello baby it me abike please what is you location',
           'time': '10:30 AM',
+          'date': 'Wed 10:00 AM',
           'checked': false
         }
       ]
@@ -240,6 +229,7 @@ Align(
                  time: messageTime,
                  buttonText: pending ? 'Pending' : 'View',
                  isChecked: isChecked,
+                 data: notificationData
                );
              } else {
                return SizedBox.shrink();
@@ -256,7 +246,7 @@ Align(
               SizedBox(height: 20,),
       ElevatedButton(
         onPressed: () {
-          // show_ondelete_notification_popup()
+          show_onDelete_notification_popup();
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xff5F33E0),
@@ -295,6 +285,7 @@ Align(
     required String time,
     required String buttonText,
     required bool isChecked,
+    required data
   }) {
     bool notSelected = !isSelected.contains(
         title); // Check if the title is in the selection list
@@ -398,7 +389,8 @@ Align(
                     child: ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          isSelected = [""]; // Reset the selection list
+                          Navigator.of(context).push(MaterialPageRoute(builder:
+                              (builder)=> Chat(chat: data)));
                         });
                         // Add your onPressed functionality here
                       },
@@ -444,6 +436,58 @@ Align(
         ],
       ),
     );
+  }
+
+  void show_onDelete_notification_popup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete Notifications'),
+          content: Text('Are you sure you want to delete selected notifications?'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  deleteNotification();
+                });
+                Navigator.pop(context);
+              },
+              child: Text('Delete'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void deleteNotification() {
+    print("${isSelected.toString()} deleted");
+    for (int i = 0; i <isSelected.length; i++) {
+      int index = -1;
+      for (int j = 0; j < all_notification.length; j++) {
+        if (all_notification[j]['from'].toString().toLowerCase() == isSelected[i].toLowerCase()) {
+          index = j;
+          print("found ++_++_+_+_+_+__+_)))__)+");
+          break;
+        }
+      }
+        if (index != -1) {
+          setState(() {
+          all_notification.removeAt(index);
+          isSelected.removeAt(i);
+          });
+        }else {
+          print("_+_+_+_+_-+ not found");
+        }
+
+    }
   }
 }
 

@@ -17,7 +17,7 @@ class _BottomNavExampleState extends State<BottomNavExample> {
   final List<Widget> _screens = [
     Dashboard(),
     TodayTask(),
-    Container(), // Placeholder for the middle icon
+    Container(), //
     Notifications(),
     Profile(),
   ];
