@@ -13,7 +13,7 @@ class ProjectTask extends StatefulWidget {
 }
 
 class _ProjectTaskState extends State<ProjectTask> {
-  dynamic filteredList = [];
+  List<Map<dynamic, dynamic>> filteredList = [];
   List<Map<dynamic, dynamic>> projectTask = [
     {
       'taskType': {'icon': '', 'color': '', 'typeName': 'Office Project'},
@@ -117,11 +117,26 @@ class _ProjectTaskState extends State<ProjectTask> {
               child: TextField(
                 onChanged: (value) {
                   setState(() {
-                    filteredList = projectTask.where((item) {
-                      return item['title']
-                          .toLowerCase()
-                          .contains(value.toLowerCase());
-                    }).toList();
+                    for (int i = 0; i <projectTask.length; i++) {
+                      Map<dynamic, dynamic> item = projectTask[i];
+                      if (value.isEmpty) {
+                        filteredList = projectTask;
+                        break;
+                      }
+                      if (item['title']
+                         .toLowerCase()
+                         .contains(value.toLowerCase())) {
+                        filteredList.add(item);
+                      }else{
+                        filteredList.remove(item);
+                      }
+                    }
+
+                    // filteredList = projectTask.where((item) {
+                    //   return item['title']
+                    //       .toLowerCase()
+                    //       .contains(value.toLowerCase());
+                    // }).toList();
                   });
                 },
                 decoration: InputDecoration(
@@ -141,8 +156,8 @@ class _ProjectTaskState extends State<ProjectTask> {
             SingleChildScrollView(
               child: Column(
                 children: projectTask.length != 0
-                    ? List.generate(projectTask.length, (index) {
-                  dynamic task = projectTask[index];
+                    ? List.generate(filteredList.isNotEmpty ? filteredList.length : projectTask.length, (index) {
+                  dynamic task = filteredList.length != 0 ? projectTask[index] : projectTask[index];
                   dynamic taskType = task['taskType'];
                   String icon = taskType['icon'];
                   String typeName = taskType['typeName'];

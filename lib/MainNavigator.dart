@@ -6,12 +6,15 @@ import 'Profile.dart';
 import 'Dashboard.dart';
 import 'Notifications.dart';
 
-class BottomNavExample extends StatefulWidget {
+class MainNavigator extends StatefulWidget {
+  final String userString;
+  MainNavigator({super.key, required this.userString});
+
   @override
-  _BottomNavExampleState createState() => _BottomNavExampleState();
+  _MainNavigatorState createState() => _MainNavigatorState();
 }
 
-class _BottomNavExampleState extends State<BottomNavExample> {
+class _MainNavigatorState extends State<MainNavigator> {
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
@@ -102,8 +105,4 @@ class _BottomNavExampleState extends State<BottomNavExample> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(BottomNavExample());
 }

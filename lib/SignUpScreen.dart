@@ -1,17 +1,12 @@
 
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(SignUpScreen());
-}
-
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Stack(
         children: [
@@ -182,7 +177,7 @@ class SignUpScreen extends StatelessWidget {
           ),
         ],
       ),
-    ),),
+    ),
     );
   }
 
