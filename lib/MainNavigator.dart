@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_list_flutter/AddTask.dart';
 import 'package:todo_list_flutter/TodaysTask.dart';
 import 'Profile.dart';
@@ -7,14 +10,34 @@ import 'Dashboard.dart';
 import 'Notifications.dart';
 
 class MainNavigator extends StatefulWidget {
-  final String userString;
-  MainNavigator({super.key, required this.userString});
-
   @override
   _MainNavigatorState createState() => _MainNavigatorState();
 }
 
 class _MainNavigatorState extends State<MainNavigator> {
+
+  late Map<String, dynamic> user;
+  @override
+  void initState() {
+    // TODO: implement initState
+    _checkLoginStatus();
+    super.initState();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userStr = prefs.getString('user');
+
+      if (userStr != null) {
+        user = jsonDecode(userStr);
+      }
+    }
+    catch (error) {
+      print('Error checking login status: $error');
+    }
+  }
+
   int _selectedIndex = 0;
 
   final List<Widget> _screens = [
@@ -37,6 +60,7 @@ class _MainNavigatorState extends State<MainNavigator> {
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
