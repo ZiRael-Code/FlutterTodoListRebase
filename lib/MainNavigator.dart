@@ -22,7 +22,8 @@ class MainNavigator extends StatefulWidget {
 class _MainNavigatorState extends State<MainNavigator> {
   final Dio _dio = Dio();
   late Map<String, dynamic> user = new Map<String, dynamic>();
-  late Map<dynamic, dynamic> fetchedData = new Map<dynamic, dynamic>();
+  late dynamic fetchedData;
+  bool isLoading = true;
 
   bool isTaskStarted(DateTime startDate, DateTime startTime, DateTime endDate,
       DateTime endTime) {
@@ -82,15 +83,14 @@ class _MainNavigatorState extends State<MainNavigator> {
       );
 
       if (response.statusCode == 200) {
-        print("weeee got it and it working yea hoooooooooo"+response.toString());
-
+        // print("weeee got it and it working yea hoooooooooo"+response.data);
         setState(() {
           fetchedData = response.data;
+          isLoading = false;
         });
       }
     } catch (e) {
       var connectivityResult = await Connectivity().checkConnectivity();
-
       if (connectivityResult == ConnectivityResult.none) {
         // Show a popup if there's no network
         showDialog(
@@ -132,13 +132,7 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    Dashboard(),
-    TodayTask(),
-    Container(), //
-    Notifications(),
-    Profile(),
-  ];
+
 
   void _onItemTapped(int index, BuildContext context) {
     if (index == 2) {
@@ -155,6 +149,24 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading){
+      return MaterialApp(
+          home: Scaffold(body: Container(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      )
+      )
+      );
+    }else{
+
+      final List<Widget> _screens = [
+        Dashboard(dashboard: fetchedData['dashboard']),
+        TodayTask(),
+        Container(), //
+        Notifications(),
+        Profile(),
+      ];
     return MaterialApp(
       home: Builder(
         builder: (context) => Scaffold(
@@ -219,5 +231,6 @@ class _MainNavigatorState extends State<MainNavigator> {
         ),
       ),
     );
+  }
   }
 }

@@ -9,12 +9,10 @@ import 'package:todo_list_flutter/TaskProjects.dart';
 
 import 'ViewTask.dart';
 
-void main() {
-  runApp(Dashboard());
-}
 
 class  Dashboard extends StatefulWidget{
-  const Dashboard({super.key});
+  final dynamic dashboard;
+  const Dashboard({super.key, required this.dashboard});
 
 
   @override
@@ -60,6 +58,8 @@ List<Map<dynamic, dynamic>> inProgressTask = [
 
   @override
   Widget build(BuildContext context) {
+    dynamic dashboard = widget.dashboard;
+    print("here is ur dashboard package"+dashboard.toString());
     return MaterialApp(
       home: Scaffold(
       appBar: AppBar(
@@ -326,44 +326,31 @@ List<Map<dynamic, dynamic>> inProgressTask = [
             ],
           ),
           SizedBox(height: 7,),
-
             Expanded(child:
             SingleChildScrollView(
-              child:Container(child:  Column(
-                children: [
-                  taskGroup(
-                    icon: '',
-                    color: '',
-                    groupName: "Personal Project",
-                    groupSize: "12",
+              child:Container(
+                child:  Column(
+                children: List.generate(dashboard['groupedTask'].length, (index) {
+                   dynamic group = dashboard['groupedTask'][index];
+                  print("+_+_+_+_+ group in dash is "+group.toString());
+                  return taskGroup(
+                        // icon: '',
+                        // color: '',
+                        // groupName: "Health and Fitness Project",
+                        // groupSize: "10",
+                        // context: context,
+                        // progress: 10);
+                    icon: group['icon'],
+                    color: group['color'],
+                    groupName: group['typeName'],
+                    groupSize: group['taskSizeInProject'].toString(),
                     context: context,
-                    progress: 10
-                  ),
-                  taskGroup(
-                    icon: '',
-                    color: '',
-                    groupName: "Business Project",
-                    groupSize: "15",
-                    context: context,
-                    progress: 15
-                  ),
-                  taskGroup(
-                    icon: '',
-                    color: '',
-                    groupName: "Study Project",
-                    groupSize: "8",
-                    context: context,
-                    progress: 8
-                  ),
-                  taskGroup(
-                    icon: '',
-                    color: '',
-                    groupName: "Art Project",
-                    groupSize: "18",
-                    context: context,
-                    progress: 18
-                  ),
-                  // taskGroup(
+                    progress: double.parse(group['taskSizeInProject']),
+                  );
+                }),
+              ),
+
+              // taskGroup(
                   //   icon: '',
                   //   color: '',
                   //   groupName: "Health and Fitness Project",
@@ -371,8 +358,6 @@ List<Map<dynamic, dynamic>> inProgressTask = [
                   //   context: context,
                   //   progress: 10
                   // ),
-                ],
-            ),
             ),
           ),
         )
@@ -386,8 +371,8 @@ List<Map<dynamic, dynamic>> inProgressTask = [
 }
 
 taskGroup({
-  required String icon,
-  required String color,
+  required dynamic icon,
+  required dynamic color,
   required String groupName,
   required String groupSize,
   required BuildContext context,
@@ -398,7 +383,7 @@ taskGroup({
   Color progressColor = Color(0xffF478B8);
   Image iconSvg = Image.asset('assets/office.svg');;
 
-  if (icon.isEmpty && color.isEmpty){
+  if (icon == null && color == null){
     progressBackgroundColor = lightenColor(iconAndColorDetermine(proj)['color'],  0.70);
     iconSvg = Image.asset(iconAndColorDetermine(proj)['icon']);
     progressColor = (iconAndColorDetermine(proj)['color']);
