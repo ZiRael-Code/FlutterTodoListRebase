@@ -43,7 +43,7 @@ class _LoginScreen extends State<LoginScreen> {
 
     try {
       Response response = await _dio.post(
-        'http://192.168.1.15:8080/user/login', // Replace with your API endpoint
+        'http://192.168.1.14:8080/user/login', // Replace with your API endpoint
         // 'https://todolistapp-1-s2az.onrender.com/user/login', // Replace with your API endpoint
         data: data,
         options: Options(contentType: Headers.jsonContentType),
@@ -52,7 +52,7 @@ class _LoginScreen extends State<LoginScreen> {
       if (response.statusCode == 200) {
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? userStr = prefs.getString('user');
+         String? userStr = prefs.getString('user');
 
         if (userStr == null) {
           Map<String, dynamic> user = {
@@ -73,7 +73,7 @@ class _LoginScreen extends State<LoginScreen> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MainNavigator()),
+          MaterialPageRoute(builder: (context) => MainNavigator(user: userStr)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

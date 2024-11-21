@@ -13,16 +13,19 @@ import 'Dashboard.dart';
 import 'Notifications.dart';
 
 class MainNavigator extends StatefulWidget {
+  final String? user;
+  MainNavigator({required this.user});
   @override
   _MainNavigatorState createState() => _MainNavigatorState();
 }
 
 class _MainNavigatorState extends State<MainNavigator> {
   final Dio _dio = Dio();
-  late Map<String, dynamic> user;
-  late Map<dynamic, dynamic> fetchedData;
+  late Map<String, dynamic> user = new Map<String, dynamic>();
+  late Map<dynamic, dynamic> fetchedData = new Map<dynamic, dynamic>();
 
-  bool isTaskStarted(DateTime startDate, DateTime startTime, DateTime endDate, DateTime endTime) {
+  bool isTaskStarted(DateTime startDate, DateTime startTime, DateTime endDate,
+      DateTime endTime) {
     DateTime now = DateTime.now();
 
     // Check if the start date is today or has passed
@@ -42,7 +45,8 @@ class _MainNavigatorState extends State<MainNavigator> {
     return false; // One or more conditions failed
   }
 
-  bool isTaskCompleted(DateTime startDate, DateTime endDate, DateTime startTime, DateTime endTime) {
+  bool isTaskCompleted(DateTime startDate, DateTime endDate, DateTime startTime,
+      DateTime endTime) {
     DateTime now = DateTime.now();
 
     // Check if the start date equals the end date
@@ -59,54 +63,31 @@ class _MainNavigatorState extends State<MainNavigator> {
     return false;
   }
 
-
-
-
-
-
-
   @override
   void initState() {
-    // TODO: implement initState
-    _getUserInfo();
     _fetchData();
     super.initState();
   }
 
-  Future<void> _getUserInfo() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? userStr = prefs.getString('user');
-
-      if (userStr != null) {
-        user = jsonDecode(userStr);
-
-      }
-    }
-    catch (error) {
-      print('Error checking login status: $error');
-    }
-  }
-
 
   void _fetchData() async {
-    int id = user['id'];
+    user = jsonDecode(widget.user.toString());
+    int id = user["id"];
+    print("{}{}_)(_{} the id i got $id");
     try {
       Response response = await _dio.get(
-        'http://192.168.1.15:8080/user/login/$id', // Endpoint with path parameter
+        'http://192.168.1.14:8080/user/getMobileNavPackage/$id',
+        // Endpoint with path parameter
         options: Options(contentType: Headers.jsonContentType),
       );
 
-
       if (response.statusCode == 200) {
-        print("weeee got it and it working yea hoooooooooo");
+        print("weeee got it and it working yea hoooooooooo"+response.toString());
 
         setState(() {
-          fetchedData =  response.data;
+          fetchedData = response.data;
         });
-
-    }
-
+      }
     } catch (e) {
       var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -141,19 +122,13 @@ class _MainNavigatorState extends State<MainNavigator> {
             ],
           ),
         );
-      }else{
+      } else {
         _fetchData();
       }
     } finally {
       var connectivityResult = await Connectivity().checkConnectivity();
-
-
     }
-
-
   }
-
-
 
   int _selectedIndex = 0;
 
@@ -177,7 +152,6 @@ class _MainNavigatorState extends State<MainNavigator> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

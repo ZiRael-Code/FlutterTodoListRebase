@@ -51,7 +51,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     try {
       Response response = await _dio.post(
-        'http://192.168.1.15:8080/user/createAccount',
+        'http://192.168.1.14:8080/user/createAccount',
         data: data,
         options: Options(contentType: Headers.jsonContentType),
       );

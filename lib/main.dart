@@ -45,7 +45,7 @@ class _MainActivityState extends State<MainActivity> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => MainNavigator(),
+              builder: (context) => MainNavigator(user: userStr),
             ),
           );
         } else {
