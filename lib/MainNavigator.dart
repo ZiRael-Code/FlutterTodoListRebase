@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:todo_list_flutter/utility/Url.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -73,63 +76,94 @@ class _MainNavigatorState extends State<MainNavigator> {
 
   void _fetchData() async {
     user = jsonDecode(widget.user.toString());
-    int id = user["id"];
+    // int id = user["id"];
+    int id = 1;
     print("{}{}_)(_{} the id i got $id");
+
     try {
+      // Add a 10-second timeout to the API call
       Response response = await _dio.get(
-        'http://192.168.1.14:8080/user/getMobileNavPackage/$id',
-        // Endpoint with path parameter
+        '$baseUrl$mobilePack$id',
         options: Options(contentType: Headers.jsonContentType),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw TimeoutException("Request timed out after 10 seconds"),
       );
 
       if (response.statusCode == 200) {
-        // print("weeee got it and it working yea hoooooooooo"+response.data);
         setState(() {
           fetchedData = response.data;
           isLoading = false;
         });
       }
+    } on TimeoutException catch (_) {
+      // Handle timeout (show Retry/Exit dialog)
+      _showTimeoutDialog();
     } catch (e) {
-      var connectivityResult = await Connectivity().checkConnectivity();
-      if (connectivityResult == ConnectivityResult.none) {
-        // Show a popup if there's no network
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => AlertDialog(
-            title: Text("No Network Connection"),
-            content: Text("Please check your internet connection."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  // Retry logic
-                  Navigator.of(context).pop(); // Close the dialog
-                  _fetchData(); // Recheck the network
-                },
-                child: Text("Retry"),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Exit the app
-                  Navigator.of(context).pop();
-                  Future.delayed(Duration(milliseconds: 200), () {
-                    // Close the app (if allowed)
-                    exit(0);
-                  });
-                },
-                child: Text("Exit"),
-              ),
-            ],
-          ),
-        );
-      } else {
-        _fetchData();
-      }
-    } finally {
-      var connectivityResult = await Connectivity().checkConnectivity();
+      // Handle other errors (network, etc.)
+      await _handleNetworkError();
     }
   }
 
+// Helper: Show Retry/Exit Dialog on Timeout
+  void _showTimeoutDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: Text("Request Timeout"),
+        content: Text("The server took too long to respond."),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _fetchData(); // Retry
+            },
+            child: Text("Retry"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              exit(0); // Exit app
+            },
+            child: Text("Exit"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleNetworkError() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: Text("No Network Connection"),
+          content: Text("Please check your internet connection."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _fetchData(); // Retry
+              },
+              child: Text("Retry"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                exit(0); // Exit app
+              },
+              child: Text("Exit"),
+            ),
+          ],
+        ),
+      );
+    } else {
+      _fetchData(); // Retry if the error wasn't a network issue
+    }
+  }
   int _selectedIndex = 0;
 
 

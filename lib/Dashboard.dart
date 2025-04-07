@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:todo_list_flutter/TaskProjects.dart';
 
 import 'ViewTask.dart';
+import 'package:todo_list_flutter/utility/Url.dart';
+
 
 
 class  Dashboard extends StatefulWidget{
@@ -20,42 +23,142 @@ class  Dashboard extends StatefulWidget{
 }
 
 class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
+
   double progress = 0.0;
-List<Map<dynamic, dynamic>> inProgressTask = [
-  {
-  'taskType':{
-  'icon': '',
-  'color': '',
-  'typeName' : 'Office Project'
-  },
-  'title': 'Grocery shopping app design',
-  'description': 'Doing app design',
-  'startDate': '12-11-2024',
-  'endDate': '22-11-2024',
-  'startTime': '12:24 AM',
-  'endTime': '6:34 PM',
-  'taskStatus': 'Completed',
-    'progress': 20.0,
-  },
-
-  {
-  'taskType':{
-  'icon': '',
-  'color': '',
-  'typeName' : 'Personal Project'
-  },
-  'title': 'Uber Eats redesign app challenge',
-  'description': 'Doing app design',
-  'startDate': '12-11-2024',
-  'endDate': '22-11-2024',
-  'startTime': '12:24 AM',
-  'endTime': '6:34 PM',
-  'taskStatus': 'Completed',
-    'progress': 25.0,
-  }
-
+  List<Map<dynamic, dynamic>> allTask = [
+    {
+      'taskType': {'icon': '', 'color': '', 'typeName': 'Office Project'},
+      'title': 'Grocery shopping app design',
+      'description': 'Doing app design',
+      'startDate': '7-4-2025',
+      'endDate': '7-4-2025',
+      'startTime': '11:29',
+      'endTime': '11:35',
+      'taskStatus': 'Completed',
+      'progress': 0.0,
+    },
+    {
+      'taskType': {'icon': '', 'color': '', 'typeName': 'Personal Project'},
+      'title': 'Uber Eats redesign app challenge',
+      'description': 'Doing app design',
+      'startDate': '7-4-2025',
+      'endDate': '7-4-2025',
+      'startTime': '11:32',
+      'endTime': '11:40',
+      'taskStatus': 'Completed',
+      'progress': 0.0,
+    }
   ];
 
+  List<Map<dynamic, dynamic>> inProgressTask = [];
+
+  Timer? timer;
+
+// Parse date string (dd-MM-yyyy) to DateTime
+  DateTime _parseDate(String dateStr) {
+    List<String> parts = dateStr.split('-');
+    return DateTime(
+      int.parse(parts[2]), // year
+      int.parse(parts[1]), // month
+      int.parse(parts[0]), // day
+    );
+  }
+
+// Parse 24-hour time string (HH:mm) to TimeOfDay
+  TimeOfDay _parseTime(String timeStr) {
+    final parts = timeStr.split(':');
+    return TimeOfDay(
+      hour: int.parse(parts[0]),
+      minute: int.parse(parts[1]),
+    );
+  }
+
+// Combine date and time into DateTime
+  DateTime _combineDateTime(String dateStr, String timeStr) {
+    final date = _parseDate(dateStr);
+    final time = _parseTime(timeStr);
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+  }
+
+// Calculate progress for a single task
+  double _calculateTaskProgress(DateTime start, DateTime end) {
+    final now = DateTime.now();
+    if (now.isBefore(start)) return 0.0;
+    if (now.isAfter(end)) return 100.0;
+    return now.difference(start).inMilliseconds / end.difference(start).inMilliseconds * 100;
+  }
+
+// Update all tasks' progress and manage inProgressTask list
+  void _updateTasksProgress() {
+    final now = DateTime.now();
+
+    // First remove completed tasks from inProgress list
+    inProgressTask.removeWhere((task) {
+      final end = _combineDateTime(task['endDate'], task['endTime']);
+      return now.isAfter(end);
+    });
+
+    // Update existing in-progress tasks
+    for (var task in inProgressTask) {
+      final start = _combineDateTime(task['startDate'], task['startTime']);
+      final end = _combineDateTime(task['endDate'], task['endTime']);
+      task['progress'] = _calculateTaskProgress(start, end);
+    }
+
+    // Add new tasks that should be in progress
+    for (var task in allTask) {
+      final start = _combineDateTime(task['startDate'], task['startTime']);
+      final end = _combineDateTime(task['endDate'], task['endTime']);
+
+      if (now.isAfter(start) && now.isBefore(end)) {
+        // Check if task already exists in inProgress list by comparing titles and start times
+        bool exists = inProgressTask.any((t) =>
+        t['title'] == task['title'] &&
+            t['startDate'] == task['startDate'] &&
+            t['startTime'] == task['startTime']
+        );
+
+        if (!exists) {
+          final newTask = Map<dynamic, dynamic>.from(task);
+          newTask['progress'] = _calculateTaskProgress(start, end);
+          newTask['taskStatus'] = 'In Progress';
+          inProgressTask.add(newTask);
+        }
+      }
+    }
+
+    setState(() {}); // Trigger UI update
+  }
+
+// Start the timer to update progress periodically
+  void startTracking() {
+    // Initial update
+    _updateTasksProgress();
+
+    // Set up periodic updates (every second)
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _updateTasksProgress();
+    });
+  }
+
+// Clean up the timer when done
+  void dispose() {
+    timer?.cancel();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    print(")))))))))) this is in progress £^£^%&%&%££: $inProgressTask");
+    startTracking();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     dynamic dashboard = widget.dashboard;
@@ -251,8 +354,10 @@ List<Map<dynamic, dynamic>> inProgressTask = [
         child: Row(
           children: [
 
-          Row(
+          inProgressTask.length != 0 ? Row(
           children: List.generate(inProgressTask.length, (index) {
+            print(")))))))))) this is in progress £^£^%&%&%££: $inProgressTask");
+
             final task = inProgressTask[index]; // Current task
             dynamic taskType = task['taskType'];
             return GestureDetector(
@@ -270,16 +375,26 @@ List<Map<dynamic, dynamic>> inProgressTask = [
                     endTime: task['endTime']);
               },
                 child: inProgress(
-              icon: task['taskType']['icon'],
-              color: task['taskType']['color'],
-              projectType: task['taskType']['typeName'],
-              taskName: task['title'],
-              progress: task['progress'],
-              context: context,
+                  task['taskType']['typeName'],
+                  task['title'],
+                  task['progress'],
+                  context,
+                  task['taskType']['icon'],
+                  task['taskType']['color'],
             )
+            // inProgress(
+            //   icon: task['taskType']['icon'],
+            //   color: task['taskType']['color'],
+            //   projectType: task['taskType']['typeName'],
+            //   taskName: task['title'],
+            //   progress: task['progress'],
+            //   context: context,
+            // )
             );
           }),
-            ),
+            )
+              :
+              Container(),
 
             // inProgress(
             //     icon: '',
@@ -465,14 +580,14 @@ taskGroup({
   SizedBox(height: 10,)],));
 }
 
-inProgress({
-  required String projectType,
-  required String taskName,
-  required double progress,
-  required BuildContext context,
-  required String icon,
-  required String color,
-}){
+inProgress(
+   String projectType,
+   String taskName,
+   double progress,
+   BuildContext context,
+   String icon,
+   String color,
+){
   String proj = projectType.toLowerCase();
 
 

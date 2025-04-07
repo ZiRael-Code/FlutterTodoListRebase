@@ -1,3 +1,4 @@
+import 'package:todo_list_flutter/utility/Url.dart';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    // Dispose controllers when the widget is removed from the tree
     emailController.dispose();
     passwordController.dispose();
     usernameController.dispose();
@@ -29,7 +29,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void _onSignUp() async {
-    // Validate input fields (Optional: Add proper validation logic)
     if (usernameController.text.isEmpty ||
         emailController.text.isEmpty ||
         passwordController.text.isEmpty) {
@@ -51,7 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     try {
       Response response = await _dio.post(
-        'http://192.168.1.14:8080/user/createAccount',
+        '$baseUrl$createAccount',
         data: data,
         options: Options(contentType: Headers.jsonContentType),
       );
@@ -185,7 +184,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(context, '/login');
+                          Navigator.push(context, MaterialPageRoute(builder: (builder)=>LoginScreen()));
                         },
                         child: Text(
                           'Login',

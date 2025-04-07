@@ -40,6 +40,9 @@ dependencies:
   connectivity_plus: ^4.0.0
   android_alarm_manager_plus: ^4.0.3
   permission_handler: ^11.3.1
+  firebase_core: ^2.24.0
+  cloud_firestore: ^4.13.0  # for Firestore database
+  # firebase_database: ^10.3.0  # for Realtime Database (alternative)
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -7,8 +7,8 @@ class AlarmProgressExample extends StatefulWidget {
 }
 
 class _AlarmProgressExampleState extends State<AlarmProgressExample> {
-  DateTime startDateTime = DateTime(2024, 11, 21, 11, 46);
-  DateTime endDateTime = DateTime(2024, 11, 21, 11, 48);
+  DateTime startDateTime = DateTime(2025, 4, 7, 8, 36);
+  DateTime endDateTime = DateTime(2025, 4, 7, 8, 56);
   double percentage = 0.0;
   Timer? timer;
 
@@ -24,7 +24,7 @@ class _AlarmProgressExampleState extends State<AlarmProgressExample> {
 
     // If the current time is before the start time, progress is 0
     if (now.isBefore(startDateTime)) {
-      percentage = 0.0;
+      percentage = 0;
     }
     // If the current time is after the end time, progress is 100
     else if (now.isAfter(endDateTime)) {
