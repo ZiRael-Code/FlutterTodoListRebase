@@ -17,7 +17,9 @@ import 'Notifications.dart';
 
 class MainNavigator extends StatefulWidget {
   final String? user;
-  MainNavigator({required this.user});
+  final int index;
+  final dynamic fetchedData;
+  MainNavigator({required this.user, required this.index, required this.fetchedData});
   @override
   _MainNavigatorState createState() => _MainNavigatorState();
 }
@@ -25,7 +27,7 @@ class MainNavigator extends StatefulWidget {
 class _MainNavigatorState extends State<MainNavigator> {
   final Dio _dio = Dio();
   late Map<String, dynamic> user = new Map<String, dynamic>();
-  late dynamic fetchedData;
+  late dynamic fetchedData = widget.fetchedData;
   bool isLoading = true;
 
   bool isTaskStarted(DateTime startDate, DateTime startTime, DateTime endDate,
@@ -74,11 +76,18 @@ class _MainNavigatorState extends State<MainNavigator> {
   }
 
 
+  void assignFetch(dynamic data){
+    setState(() {
+      fetchedData = data;
+    });
+  }
+
+
   void _fetchData() async {
     user = jsonDecode(widget.user.toString());
+    if(fetchedData == null){
     // int id = user["id"];
     int id = 1;
-    print("{}{}_)(_{} the id i got $id");
 
     try {
       // Add a 10-second timeout to the API call
@@ -86,7 +95,7 @@ class _MainNavigatorState extends State<MainNavigator> {
         '$baseUrl$mobilePack$id',
         options: Options(contentType: Headers.jsonContentType),
       ).timeout(
-        const Duration(seconds: 10),
+        const Duration(seconds: 5),
         onTimeout: () => throw TimeoutException("Request timed out after 10 seconds"),
       );
 
@@ -102,6 +111,7 @@ class _MainNavigatorState extends State<MainNavigator> {
     } catch (e) {
       // Handle other errors (network, etc.)
       await _handleNetworkError();
+    }
     }
   }
 
@@ -164,7 +174,8 @@ class _MainNavigatorState extends State<MainNavigator> {
       _fetchData(); // Retry if the error wasn't a network issue
     }
   }
-  int _selectedIndex = 0;
+
+  late int _selectedIndex = widget.index;
 
 
 
@@ -195,7 +206,7 @@ class _MainNavigatorState extends State<MainNavigator> {
     }else{
 
       final List<Widget> _screens = [
-        Dashboard(dashboard: fetchedData['dashboard']),
+        Dashboard(onItemTapped: _onItemTapped, dashboard: fetchedData['dashboard'], assignFetchData: assignFetch,),
         TodayTask(),
         Container(), //
         Notifications(),

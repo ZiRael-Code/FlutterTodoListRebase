@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:todo_list_flutter/MainNavigator.dart';
 import 'package:todo_list_flutter/TaskProjects.dart';
 
 import 'ViewTask.dart';
@@ -15,7 +19,10 @@ import 'package:todo_list_flutter/utility/Url.dart';
 
 class  Dashboard extends StatefulWidget{
   final dynamic dashboard;
-  const Dashboard({super.key, required this.dashboard});
+  final void Function(int index, BuildContext context) onItemTapped;
+  final void Function(dynamic data) assignFetchData;
+  const Dashboard({super.key, required this.dashboard,
+    required this.onItemTapped, required this.assignFetchData});
 
 
   @override
@@ -23,67 +30,70 @@ class  Dashboard extends StatefulWidget{
 }
 
 class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
+  final Dio _dio = Dio();
 
   double progress = 0.0;
-  List<Map<dynamic, dynamic>> allTask = [
+  // late List<dynamic> allTask = widget.dashboard["allTasks"];
+  final List<Map<dynamic, dynamic>> allTask = [
     {
+      "todoItemId": 1,
       'taskType': {'icon': '', 'color': '', 'typeName': 'Office Project'},
       'title': 'Grocery shopping app design',
       'description': 'Doing app design',
-      'startDate': '7-4-2025',
-      'endDate': '7-4-2025',
-      'startTime': '11:29',
-      'endTime': '11:35',
-      'taskStatus': 'Completed',
+      'startDate': "2025-04-07T16:04",
+      'endDate': "2025-04-07T16:05",
+      'taskStatus': 'Pending',
       'progress': 0.0,
+      "userId": 1
     },
     {
+      "todoItemId": 2,
       'taskType': {'icon': '', 'color': '', 'typeName': 'Personal Project'},
       'title': 'Uber Eats redesign app challenge',
       'description': 'Doing app design',
-      'startDate': '7-4-2025',
-      'endDate': '7-4-2025',
-      'startTime': '11:32',
-      'endTime': '11:40',
-      'taskStatus': 'Completed',
+      'startDate': "2025-04-07T14:47",
+      'endDate': "2025-04-07T14:50",
+      'taskStatus': 'Pending',
       'progress': 0.0,
+      "userId": 1
     }
   ];
 
   List<Map<dynamic, dynamic>> inProgressTask = [];
-
   Timer? timer;
+  DateTime _parseDateTime(String dateTimeStr) {
+    try {
 
-// Parse date string (dd-MM-yyyy) to DateTime
-  DateTime _parseDate(String dateStr) {
-    List<String> parts = dateStr.split('-');
-    return DateTime(
-      int.parse(parts[2]), // year
-      int.parse(parts[1]), // month
-      int.parse(parts[0]), // day
-    );
-  }
+      final parts = dateTimeStr.split("T");
+      if (parts.length != 2) {
+        throw FormatException('Invalid datetime format - missing T separator $dateTimeStr');
+      }
 
-// Parse 24-hour time string (HH:mm) to TimeOfDay
-  TimeOfDay _parseTime(String timeStr) {
-    final parts = timeStr.split(':');
-    return TimeOfDay(
-      hour: int.parse(parts[0]),
-      minute: int.parse(parts[1]),
-    );
-  }
+      // Parse date part (YYYY-MM-DD)
+      final dateParts = parts[0].split('-');
+      if (dateParts.length != 3) {
+        throw FormatException('Invalid date format - expected YYYY-MM-DD');
+      }
 
-// Combine date and time into DateTime
-  DateTime _combineDateTime(String dateStr, String timeStr) {
-    final date = _parseDate(dateStr);
-    final time = _parseTime(timeStr);
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
-    );
+      // Parse time part (HH:MM)
+      final timeParts = parts[1].split(':');
+      if (timeParts.length != 2) {
+        throw FormatException('Invalid time format - expected HH:MM');
+      }
+
+      return DateTime(
+        int.parse(dateParts[0]), // year
+        int.parse(dateParts[1]), // month
+        int.parse(dateParts[2]), // day
+        int.parse(timeParts[0]), // hour
+        int.parse(timeParts[1]), // minute
+      );
+    } catch (e) {
+      print('Error parsing datetime "$dateTimeStr": $e');
+      // Return current time as fallback or throw to handle upstream
+      return DateTime.now();
+      // OR throw FormatException('Invalid datetime format: $dateTimeStr');
+    }
   }
 
 // Calculate progress for a single task
@@ -98,31 +108,36 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
   void _updateTasksProgress() {
     final now = DateTime.now();
 
-    // First remove completed tasks from inProgress list
+    // 1️⃣ FIRST: Mark completed tasks in API (before removing them)
+    for (final task in inProgressTask) {
+      final endTime = _parseDateTime(task['endDate']);
+      if (now.isAfter(endTime)) {
+        markAsCompleteApi(task['todoItemId'], task["userId"]);
+        task['taskStatus'] = 'Completed';
+      }
+    }
+
+    // 2️⃣ THEN: Remove completed tasks from inProgress list
     inProgressTask.removeWhere((task) {
-      final end = _combineDateTime(task['endDate'], task['endTime']);
+      final end = _parseDateTime(task['endDate']);
       return now.isAfter(end);
     });
 
-    // Update existing in-progress tasks
+    // 3️⃣ Update existing in-progress tasks
     for (var task in inProgressTask) {
-      final start = _combineDateTime(task['startDate'], task['startTime']);
-      final end = _combineDateTime(task['endDate'], task['endTime']);
+      final start = _parseDateTime(task['startDate']);
+      final end = _parseDateTime(task['endDate']);
       task['progress'] = _calculateTaskProgress(start, end);
     }
 
-    // Add new tasks that should be in progress
+    // 4️⃣ Add new tasks that should be in progress
     for (var task in allTask) {
-      final start = _combineDateTime(task['startDate'], task['startTime']);
-      final end = _combineDateTime(task['endDate'], task['endTime']);
+      final start = _parseDateTime(task['startDate']);
+      final end = _parseDateTime(task['endDate']);
 
       if (now.isAfter(start) && now.isBefore(end)) {
-        // Check if task already exists in inProgress list by comparing titles and start times
         bool exists = inProgressTask.any((t) =>
-        t['title'] == task['title'] &&
-            t['startDate'] == task['startDate'] &&
-            t['startTime'] == task['startTime']
-        );
+        t['title'] == task['title'] && t['startDate'] == task['startDate']);
 
         if (!exists) {
           final newTask = Map<dynamic, dynamic>.from(task);
@@ -133,21 +148,15 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
       }
     }
 
-    setState(() {}); // Trigger UI update
+    setState(() {});
   }
-
-// Start the timer to update progress periodically
   void startTracking() {
-    // Initial update
     _updateTasksProgress();
-
-    // Set up periodic updates (every second)
     timer = Timer.periodic(Duration(seconds: 1), (timer) {
       _updateTasksProgress();
     });
   }
 
-// Clean up the timer when done
   void dispose() {
     timer?.cancel();
   }
@@ -155,23 +164,29 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     // TODO: implement initState
-    print(")))))))))) this is in progress £^£^%&%&%££: $inProgressTask");
     startTracking();
     super.initState();
   }
+  late dynamic dashboard = widget.dashboard;
+
   @override
   Widget build(BuildContext context) {
-    dynamic dashboard = widget.dashboard;
-    print("here is ur dashboard package"+dashboard.toString());
+    dynamic user  = dashboard["user"];
     return MaterialApp(
       home: Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white, // Customize app bar color
+        backgroundColor: Colors.white,
         title: Row(
           children: [
+            InkWell(
+              onTap: (){
+                widget.onItemTapped(4, context);
+              },
+              child:
             CircleAvatar(
               radius: 24,
               backgroundImage: AssetImage('assets/profile_img.jpg'), // Replace with your image asset
+            ),
             ),
             SizedBox(width: 12), // Space between the image and column
 
@@ -188,7 +203,7 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                 ),
                 // 'Livia Vaccaro' text
                 Text(
-                  'Nwaloziri Israel',
+                  user["username"],
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -201,30 +216,36 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
             Spacer(), // Push the notification icon to the far right
 
             // Notification icon with orange dot badge
-            Stack(
-              clipBehavior: Clip.none, // Allows the orange dot to be partially outside the stack
-              children: [
-                // Notification icon
-                Icon(
-                  Icons.notifications,
-                  size: 28,
-                  color: Colors.black,
-                ),
-                // Orange dot indicating notification
-                Positioned(
-                  top: 0,
-                  right: 3,
-                  child: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: Color(0xff5f33e1),
-                      shape: BoxShape.circle,
+            InkWell(
+              onTap: (){
+                widget.onItemTapped(3, context);
+              },
+              child: Stack(
+                clipBehavior: Clip.none, // Allows the orange dot to be partially outside the stack
+                children: [
+                  // Notification icon
+                  Icon(
+                    Icons.notifications,
+                    size: 28,
+                    color: Colors.black,
+                  ),
+                  // Orange dot indicating notification
+                  Positioned(
+                    top: 0,
+                    right: 3,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Color(0xff5f33e1),
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            )
+
           ],
         ),
       ),
@@ -236,12 +257,13 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
           Container(
             padding: EdgeInsets.all(16),
             width: double.infinity,
-            height: MediaQuery.of(context).size.height * 0.2 ,
+            height: MediaQuery.of(context).size.height * 0.21 ,
             decoration: BoxDecoration(
               color: Color(0xff5f33e1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Row(
+            child: Padding(padding: EdgeInsets.only(right: 12),
+                child:  Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 // FractionallySizedBox(
@@ -253,7 +275,7 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                     width: MediaQuery.of(context).size.width * 0.45,
                     child:
                       AutoSizeText(
-                        'Your today\'s task almost done!',
+                        '${dashboard["totalCompleted"]["message"]}',
                         style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.050, color: Colors.white),
                       ),
                   ),
@@ -267,13 +289,7 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                         width: MediaQuery.of(context).size.width * 0.35,
                         child: ElevatedButton(
                           onPressed: () {
-                          setState(() {
-                            // progress = 0;
-                            if (progress < 100) {
-                              progress += 10;
-                            }
-                          });
-                            // Handle signup logic
+                          widget.onItemTapped(1, context);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFFeee9ff), // Button color
@@ -296,7 +312,8 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
         ),
               ],
             ),
-
+                // SizedBox(width: 15,),
+                Spacer(),
                 Stack(
                   alignment: Alignment.center,
                   children: [
@@ -304,12 +321,12 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                       width: 75,
                       height: 75,
                       child: CustomPaint(
-                        painter: _DashboardCircularProgressPainter(progress),
+                        painter: _DashboardCircularProgressPainter(double.parse(dashboard["totalCompleted"]["completedTask"])),
                       ),
                     ),
                     // Display percentage in the center
                     Text(
-                      "${progress.toInt()}%",
+                      "${int.parse(dashboard["totalCompleted"]["completedTask"])}%",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -319,6 +336,7 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                   ],
                 ),
         ],
+      )
       )
       ),
           SizedBox(height: 20),
@@ -339,14 +357,14 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                   color: Color(0xffF2EDFF),
                   shape: BoxShape.circle,
                 ),
-                child: Center(child: AutoSizeText('6', style: TextStyle(
+                child: Center(child: AutoSizeText(inProgressTask.length.toString(), style: TextStyle(
                   color: Color(0xFF9260F4)
                 ),),)
               ),
             ],
           ),
 
-          Align(
+          inProgressTask.length != 0 ? Align(
               alignment: Alignment.centerLeft,
               child:
           SingleChildScrollView(
@@ -354,9 +372,8 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
         child: Row(
           children: [
 
-          inProgressTask.length != 0 ? Row(
+        Row(
           children: List.generate(inProgressTask.length, (index) {
-            print(")))))))))) this is in progress £^£^%&%&%££: $inProgressTask");
 
             final task = inProgressTask[index]; // Current task
             dynamic taskType = task['taskType'];
@@ -393,8 +410,7 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
             );
           }),
             )
-              :
-              Container(),
+
 
             // inProgress(
             //     icon: '',
@@ -414,6 +430,11 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
           ],
         ),
       )
+      ):
+          Align(
+          alignment: Alignment.center,
+          child:
+          SvgPicture.asset("./assets/box.svg"),
       ),
 
           SizedBox(height: 15,),
@@ -434,7 +455,7 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                     color: Color(0xffF2EDFF),
                     shape: BoxShape.circle,
                   ),
-                  child: Center(child: AutoSizeText('4', style: TextStyle(
+                  child: Center(child: AutoSizeText(dashboard["taskGroupSize"].toString(), style: TextStyle(
                       color: Color(0xFF9260F4)
                   ),),)
               ),
@@ -447,7 +468,6 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                 child:  Column(
                 children: List.generate(dashboard['groupedTask'].length, (index) {
                    dynamic group = dashboard['groupedTask'][index];
-                  print("+_+_+_+_+ group in dash is "+group.toString());
                   return taskGroup(
                         // icon: '',
                         // color: '',
@@ -460,7 +480,7 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
                     groupName: group['typeName'],
                     groupSize: group['taskSizeInProject'].toString(),
                     context: context,
-                    progress: double.parse(group['taskSizeInProject']),
+                    progress: double.parse(group['completedTask']),
                   );
                 }),
               ),
@@ -483,6 +503,100 @@ class _Dashboard extends State<Dashboard> with SingleTickerProviderStateMixin {
         ),
    )));
   }
+
+  Future<void> markAsCompleteApi(taskId, userId) async {
+    try {
+      print(' _-------------------_____in mark as completed block for task $taskId');
+      // Add a 10-second timeout to the API call
+      final Response response = await _dio.post(
+        '$baseUrl$markAsComplete$taskId/$userId', // Params in URL
+        options: Options(
+          contentType: Headers.jsonContentType, // Optional: Only if API expects JSON
+        ),
+      ).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => throw TimeoutException("Request timed out after 5 seconds"),
+      );
+
+      if (response.statusCode == 200) {
+        var data = response.data;
+        print('this si the data i recieved $data');
+        setState(() {
+          dashboard =  data["dashboard"];
+        });
+        widget.assignFetchData(response.data); // Trigger UI update if needed
+      } else {
+        print("Failed to mark task as complete: ${response.statusCode}");
+      }
+    } on TimeoutException catch (_) {
+      // Handle timeout (show Retry/Exit dialog)
+      _showTimeoutDialog(context, taskId, userId);
+    } catch (e) {
+      // Handle other errors (network, etc.)
+      await _handleNetworkError(context, taskId, userId);
+    }
+  }
+
+  void _showTimeoutDialog(BuildContext context, taskId, userId) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => AlertDialog(
+      title: Text("Request Timeout"),
+      content: Text("The server took too long to respond."),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            markAsCompleteApi(taskId, userId); // Retry
+          },
+          child: Text("Retry"),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            exit(0); // Exit app
+          },
+          child: Text("Exit"),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<void> _handleNetworkError(BuildContext context, taskId, userId) async {
+  var connectivityResult = await Connectivity().checkConnectivity();
+  if (connectivityResult == ConnectivityResult.none) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) =>
+          AlertDialog(
+            title: Text("No Network Connection"),
+            content: Text("Please check your internet connection."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  markAsCompleteApi(taskId, userId); // Retry
+                },
+                child: Text("Retry"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  exit(0); // Exit app
+                },
+                child: Text("Exit"),
+              ),
+            ],
+          ),
+    );
+  } else {
+    markAsCompleteApi(
+        taskId, userId); // Retry if the error wasn't a network issue
+  }
+}
 }
 
 taskGroup({
@@ -580,6 +694,7 @@ taskGroup({
   SizedBox(height: 10,)],));
 }
 
+int colorRandomNumber = Random.secure().nextInt(5);
 inProgress(
    String projectType,
    String taskName,
@@ -604,7 +719,7 @@ iconSvg = Image.asset(iconAndColorDetermine(proj)['icon']);
   iconBackgroundColor = hexToColor(color);
   // iconSvg = byteToSvg(icon);
 }
-  int colorRandomNumber = Random.secure().nextInt(5);
+
   List<Color> inProgProgressColor  = [Color(0xff0087FF),
     Color(0xffFF7D53),
     Color(0xff9260F4),
